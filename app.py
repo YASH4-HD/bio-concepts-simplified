@@ -292,49 +292,57 @@ with tabs[2]:
     # Input Section
     raw_input = st.text_area("Enter Raw DNA (can include spaces/numbers):", "atgc 123 gtatc", key="lab_input")
     
-    # Action Buttons
+    # Action Buttons in a nice row
     c1, c2, c3 = st.columns(3)
     
-    with c1:
-        if st.button("🧹 Clean Sequence"):
-            cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
-            st.success("Cleaned:")
-            st.code(cleaned)
+    # Logic to handle which button was pressed
+    result_text = ""
+    result_type = None
+    label = ""
 
-    with c2:
-        if st.button("🧬 Transcribe"):
-            cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
-            mrna = cleaned.replace("T", "U")
-            st.warning("mRNA:")
-            st.code(mrna)
+    if c1.button("🧹 Clean Sequence", use_container_width=True):
+        result_text = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+        result_type = "success"
+        label = "Cleaned DNA Sequence:"
 
-    with c3:
-        # NEW: Mutation Simulator
-        if st.button("🎲 Random Mutation"):
-            cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
-            if cleaned:
-                import random
-                list_seq = list(cleaned)
-                idx = random.randint(0, len(list_seq)-1)
-                old = list_seq[idx]
-                new = random.choice([b for b in "ATGC" if b != old])
-                list_seq[idx] = new
-                st.error(f"Mutated index {idx}: {old} → {new}")
-                st.code("".join(list_seq))
+    if c2.button("🧬 Transcribe", use_container_width=True):
+        cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+        result_text = cleaned.replace("T", "U")
+        result_type = "warning"
+        label = "mRNA Transcript (T → U):"
+
+    if c3.button("🎲 Random Mutation", use_container_width=True):
+        cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+        if cleaned:
+            import random
+            list_seq = list(cleaned)
+            idx = random.randint(0, len(list_seq)-1)
+            old, new = list_seq[idx], random.choice([b for b in "ATGC" if b != list_seq[idx]])
+            list_seq[idx] = new
+            result_text = "".join(list_seq)
+            result_type = "error"
+            label = f"Mutation Alert: Position {idx} changed from {old} to {new}"
+
+    # SHOW RESULTS HERE (Below the buttons, full width)
+    if result_text:
+        st.divider()
+        if result_type == "success": st.success(label)
+        elif result_type == "warning": st.warning(label)
+        elif result_type == "error": st.error(label)
+        st.code(result_text)
+        st.caption("Copy this sequence for use in the Advanced Molecular Suite.")
 
     st.divider()
     
-    # Fixed Quick Reference with proper LaTeX
+    # Quick Reference
     st.subheader("Quick Reference")
-    st.markdown("""
-    * **A** $\\rightarrow$ Adenine
-    * **T** $\\rightarrow$ Thymine (DNA) / **U** $\\rightarrow$ Uracil (RNA)
-    * **G** $\\rightarrow$ Guanine
-    * **C** $\\rightarrow$ Cytosine
-    """)
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.markdown("- **A** $\\rightarrow$ Adenine\n- **T** $\\rightarrow$ Thymine (DNA)")
+    with col_b:
+        st.markdown("- **G** $\\rightarrow$ Guanine\n- **C** $\\rightarrow$ Cytosine")
     
-    # Added a "Lab Note" for educational value
-    st.info("💡 **Lab Tip:** Use the 'Clean' button before copying your sequence into the Advanced Molecular Suite for a perfect analysis.")
+    st.info("💡 **Lab Tip:** This lab is designed for sequence preparation. Use the 'Clean' tool to remove non-genetic characters from your data.")
 # =========================
 # TAB 4: INTERNAL SEARCH (Updated)
 # =========================
