@@ -3,18 +3,28 @@ import pandas as pd
 import os
 from deep_translator import GoogleTranslator
 import easyocr
-import cv2
-import numpy as np
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="Bio-Tech Smart Textbook", layout="wide")
 
-# --- INITIALIZE OCR (Cache it so it only loads once) ---
+# --- INITIALIZE OCR ---
 @st.cache_resource
 def load_ocr():
     return easyocr.Reader(['en'])
 
 reader = load_ocr()
+
+# --- OPTIMIZED OCR CACHING ---
+# This function reads the image ONCE and remembers the text
+@st.cache_data
+def get_text_from_image(img_path):
+    if img_path and os.path.exists(img_path):
+        try:
+            results = reader.readtext(img_path, detail=0)
+            return " ".join(results).lower()
+        except:
+            return ""
+    return ""
 
 # --- DATA LOADING ---
 @st.cache_data
@@ -36,25 +46,12 @@ knowledge_df = load_knowledge_base()
 # --- INITIALIZE SESSION STATES ---
 if 'page_index' not in st.session_state:
     st.session_state.page_index = 0
-if 'active_tab' not in st.session_state:
-    st.session_state.active_tab = 0  # 0 is the Reader tab
-
-# Function to handle jumping
-def jump_to_page(index):
-    st.session_state.page_index = index
-    st.session_state.active_tab = 0  # Switch to Reader Tab
-    st.rerun()
 
 # --- APP LOGIC ---
 if knowledge_df is not None:
     
-    # We use the 'value' parameter to programmatically change tabs
     tab_list = ["📖 Reader", "🔬 DNA Lab", "🔍 Search", "📊 Data Analysis", "🇮🇳 Hinglish Helper"]
     tabs = st.tabs(tab_list)
-    
-    # Logic to force the tab selection based on session state
-    # (Note: Streamlit tabs don't have a direct 'active' setter yet, 
-    # so we use a container trick or simply inform the user/rerun logic)
 
     # --- TAB 0: READER ---
     with tabs[0]:
@@ -81,7 +78,7 @@ if knowledge_df is not None:
             if img and os.path.exists(img):
                 st.image(img, use_container_width=True)
             else:
-                st.info("Diagram/Table will appear here")
+                st.info("No diagram for this section.")
 
     # --- TAB 1: DNA LAB ---
     with tabs[1]:
@@ -92,34 +89,33 @@ if knowledge_df is not None:
                 gc = (seq.count('G') + seq.count('C')) / len(seq) * 100
                 st.metric("GC Content", f"{gc:.2f}%")
 
-    # --- TAB 2: SMART SEARCH (WITH IMAGE OCR) ---
+    # --- TAB 2: SMART SEARCH (OPTIMIZED) ---
     with tabs[2]:
         st.header("🔍 AI Search (Text + Images)")
-        query = st.text_input("Search for any word (even inside diagrams):")
+        query = st.text_input("Search for any word (even inside diagrams):").lower().strip()
         
         if query:
-            with st.spinner("AI is scanning text and images..."):
-                # 1. Search in CSV Text
-                text_matches = knowledge_df[
-                    knowledge_df['Topic'].str.contains(query, case=False, na=False) | 
-                    knowledge_df['Explanation'].str.contains(query, case=False, na=False)
-                ].index.tolist()
-
-                # 2. Search in Images using OCR
+            with st.spinner("Searching through text and diagrams..."):
+                all_indices = []
                 image_matches = []
-                # To save time, we only scan images mentioned in the CSV
-                for idx, row in knowledge_df.iterrows():
-                    img_file = str(row.get('Image', ''))
-                    if img_file and os.path.exists(img_file):
-                        # Perform OCR on the image
-                        results = reader.readtext(img_file, detail=0)
-                        # Check if query exists in the list of words found in image
-                        if any(query.lower() in word.lower() for word in results):
-                            if idx not in text_matches:
-                                image_matches.append(idx)
 
-                # Combine results
-                all_indices = list(set(text_matches + image_matches))
+                for idx, row in knowledge_df.iterrows():
+                    # 1. Check Text
+                    topic = str(row.get('Topic', '')).lower()
+                    expl = str(row.get('Explanation', '')).lower()
+                    
+                    if query in topic or query in expl:
+                        all_indices.append(idx)
+                    else:
+                        # 2. Check Image (Now lightning fast due to caching)
+                        img_file = str(row.get('Image', ''))
+                        img_text = get_text_from_image(img_file)
+                        if query in img_text:
+                            all_indices.append(idx)
+                            image_matches.append(idx)
+
+                # Remove duplicates and sort
+                all_indices = sorted(list(set(all_indices)))
 
                 if all_indices:
                     st.success(f"Found {len(all_indices)} matches!")
@@ -127,13 +123,16 @@ if knowledge_df is not None:
                         row = knowledge_df.iloc[i]
                         with st.expander(f"📖 {row['Topic']} (Page {i+1})"):
                             if i in image_matches:
-                                st.info("📍 Found this word inside the diagram/image on this page!")
+                                st.info("📍 Word found inside the diagram on this page.")
                             st.write(row['Explanation'][:200] + "...")
-                            if st.button(f"Go to Page {i+1}", key=f"search_{i}"):
+                            
+                            # FIX: Instant jump button
+                            if st.button(f"Go to Page {i+1}", key=f"search_btn_{i}"):
                                 st.session_state.page_index = i
+                                st.success(f"Loaded Page {i+1}! Click the 'Reader' tab.")
                                 st.rerun()
                 else:
-                    st.warning("No matches found in text or diagrams.")
+                    st.warning("No matches found.")
 
     # --- TAB 3: DATA ANALYSIS ---
     with tabs[3]:
