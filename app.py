@@ -65,7 +65,7 @@ tabs = st.tabs([
     "🔍 Search",
     "📊 Data",
     "🇮🇳 Hindi Helper",
-    "🇬🇧 English Helper"
+    
 ])
 
 # =========================
