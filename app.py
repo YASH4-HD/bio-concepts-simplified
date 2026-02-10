@@ -82,6 +82,16 @@ if "page_index" not in st.session_state:
 # TABS
 # =========================
 tabs = st.tabs([
+# --- HERO HEADER (Image 2 Style) ---
+st.markdown("""
+    <div style="text-align: left; padding: 10px 0px;">
+        <h1 style="margin-bottom: 0;">🧬 Bio-Tech Smart Textbook</h1>
+        <p style="font-style: italic; color: #555; font-size: 1.1rem;">
+            This resource guide serves as a foundational reference for computational hypothesis generation, 
+            validation, and extension of biotechnology mechanisms.
+        </p>
+    </div>
+""", unsafe_allow_html=True)
     "📖 Reader",
     "🧠 10 Points",
     "🔬 DNA Lab",
