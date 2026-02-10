@@ -1,13 +1,10 @@
 import streamlit as st
 import pandas as pd
 import os
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="Bio-Tech Smart Textbook", layout="wide")
-
-# --- INITIALIZE TRANSLATOR ---
-translator = Translator()
 
 # --- DATA LOADING ---
 @st.cache_data
@@ -31,7 +28,6 @@ if knowledge_df is not None:
     if 'page_index' not in st.session_state:
         st.session_state.page_index = 0
 
-    # TABS
     tab0, tab1, tab2, tab3, tab4 = st.tabs([
         "📖 Reader", 
         "🔬 DNA Lab", 
@@ -40,7 +36,7 @@ if knowledge_df is not None:
         "🇮🇳 Hinglish Helper"
     ])
 
-    # --- TAB 0: INTERACTIVE READER ---
+    # --- TAB 0: READER ---
     with tab0:
         col_prev, col_page, col_next = st.columns([1, 2, 1])
         if col_prev.button("⬅️ Previous"):
@@ -73,12 +69,11 @@ if knowledge_df is not None:
             if seq:
                 gc = (seq.count('G') + seq.count('C')) / len(seq) * 100
                 st.metric("GC Content", f"{gc:.2f}%")
-                st.write(f"Sequence Length: {len(seq)} bp")
 
     # --- TAB 2: SEARCH ENGINE ---
     with tab2:
         st.header("🔍 Search Textbook")
-        query = st.text_input("Enter keyword (e.g. PCR):")
+        query = st.text_input("Enter keyword:")
         if query:
             results = knowledge_df[knowledge_df['Explanation'].str.contains(query, case=False, na=False)]
             for i, row in results.iterrows():
@@ -106,16 +101,16 @@ if knowledge_df is not None:
             if to_translate:
                 with st.spinner("Translating..."):
                     try:
-                        # Translate to Hindi
-                        translated = translator.translate(to_translate, src='en', dest='hi')
+                        # Using deep-translator (Works with Python 3.13)
+                        translated = GoogleTranslator(source='auto', target='hi').translate(to_translate)
                         
                         st.subheader("Hindi Translation:")
-                        st.success(translated.text)
+                        st.success(translated)
                         
-                        st.subheader("Hinglish Explanation Style:")
-                        st.info(f"Iska simple matlab hai: {translated.text} \n\n (Note: This is a direct translation. For complex bio-terms, keep the English names same.)")
+                        st.subheader("Hinglish Style Explanation:")
+                        st.info(f"Simple words mein: {translated}")
                     except Exception as e:
-                        st.error("Translation error. Please try again in a moment.")
+                        st.error(f"Translation error: {e}")
             else:
                 st.warning("Please enter text first.")
 
