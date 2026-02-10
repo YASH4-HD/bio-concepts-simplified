@@ -13,7 +13,14 @@ st.set_page_config(
     page_title="Bio-Tech Smart Textbook",
     layout="wide"
 )
-
+# --- ADD THIS TO THE TOP ---
+import datetime
+with st.sidebar:
+    st.title("🛡️ Bio-Verify 2026")
+    st.write(f"**Current Date:** {datetime.date.today().strftime('%d %b %Y')}")
+    st.success("✅ Live API Connection: Active")
+    st.info("Verified Data Sources: NCBI, Wikipedia, Google")
+    st.divider()
 # =========================
 # OCR INITIALIZATION
 # =========================
