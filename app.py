@@ -109,47 +109,54 @@ with tabs[0]:
     if knowledge_df.empty:
         st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
-                # --- STYLED NAVIGATION ---
+                        # --- REFINED NAVIGATION ---
         st.markdown("""
             <style>
-                div.stButton > button:first-child {
-                    background-color: #1e468a;
-                    color: white;
-                    border-radius: 20px;
-                    width: 100%;
-                    border: none;
-                    transition: 0.3s;
+                /* Make buttons match the height of the progress box */
+                div.stButton > button {
+                    background-color: #1e468a !important;
+                    color: white !important;
+                    border-radius: 10px !important;
+                    height: 65px !important;
+                    width: 100% !important;
+                    border: none !important;
+                    font-weight: bold !important;
                 }
-                div.stButton > button:first-child:hover {
-                    background-color: #2a5eb2;
-                    transform: scale(1.05);
+                /* Progress bar color */
+                .stProgress > div > div > div > div {
+                    background-image: linear-gradient(to right, #1e468a , #4facfe);
                 }
             </style>
         """, unsafe_allow_html=True)
 
-        col1, col2, col3 = st.columns([1, 2, 1])
-        
-        # Previous Button
-        if col1.button("⬅ Previous"):
-            st.session_state.page_index = max(0, st.session_state.page_index - 1)
-            st.rerun()
-        
-        # Page Indicator with a nice badge look
-        col2.markdown(f"""
-            <div style='text-align:center; background:#f0f2f6; border-radius:15px; padding:5px;'>
-                <small style='color:#555;'>CURRENT PROGRESS</small><br>
-                <span style='font-weight:bold; font-size:1.2rem;'>Page {st.session_state.page_index + 1} of {len(knowledge_df)}</span>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Next Button
-        if col3.button("Next ➡"):
-            st.session_state.page_index = min(len(knowledge_df) - 1, st.session_state.page_index + 1)
-            st.rerun()
+        # 1. TOP PROGRESS BAR
+        progress_value = (st.session_state.page_index + 1) / len(knowledge_df)
+        st.progress(progress_value)
 
-        # --- KEYBOARD SHORTCUTS (Invisible Logic) ---
-        # This allows pressing Enter or using buttons smoothly
+        # 2. COMPACT NAVIGATION ROW
+        # Using [1, 3, 1] ratio makes the center box wider and buttons tighter
+        col1, col2, col3 = st.columns([1, 3, 1])
+        
+        with col1:
+            if st.button("⬅ PREV"):
+                st.session_state.page_index = max(0, st.session_state.page_index - 1)
+                st.rerun()
+        
+        with col2:
+            st.markdown(f"""
+                <div style='text-align:center; background:#f0f2f6; border-radius:10px; padding:10px; height:65px; border: 1px solid #d1d5db;'>
+                    <small style='color:#555; text-transform: uppercase; letter-spacing: 1px;'>Reader Progress</small><br>
+                    <span style='font-weight:bold; font-size:1.3rem; color:#1e468a;'>Page {st.session_state.page_index + 1} of {len(knowledge_df)}</span>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            if st.button("NEXT ➡"):
+                st.session_state.page_index = min(len(knowledge_df) - 1, st.session_state.page_index + 1)
+                st.rerun()
+
         st.divider()
+
 
         
         # Define current row and save to session state
