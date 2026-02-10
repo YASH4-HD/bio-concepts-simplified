@@ -140,7 +140,7 @@ tabs = st.tabs([
     "🔍 Search", 
     "🌐 Global Bio-Search", 
     "🇮🇳 Hindi Helper", 
-    "🧪 Sequence Analyzer"  # <--- Make sure this 7th one is here!
+    "🧬 Advanced Molecular Suite"  # <--- Make sure this 7th one is here!
 ])
 # =========================
 # TAB 1: READER
@@ -478,47 +478,64 @@ with tabs[5]:
 # TAB 7: SEQUENCE ANALYZER
 # ==========================================
 with tabs[6]:
-    st.header("🧬 Molecular Sequence Analyzer")
-    st.info("Paste a DNA or RNA sequence below to calculate GC content and visualize base distribution.")
+    st.header("🧬 Advanced Molecular Suite")
     
     # Input area
-    raw_seq = st.text_area("Enter Sequence:", "ATGCATGCATGCTAGCTAGCTAG").upper().strip()
+    raw_seq = st.text_area("Paste DNA Sequence:", "ATGGCCATTGTAATGGGCCGCTGAAAGGGTACCCGATAG").upper().strip()
     
     if raw_seq:
-        # 1. Basic Calculations
+        # 1. Calculations
         seq_len = len(raw_seq)
-        g_count = raw_seq.count('G')
-        c_count = raw_seq.count('C')
-        gc_content = ((g_count + c_count) / seq_len) * 100 if seq_len > 0 else 0
+        gc_count = raw_seq.count('G') + raw_seq.count('C')
+        gc_content = (gc_count / seq_len) * 100 if seq_len > 0 else 0
+        at_content = 100 - gc_content
         
-        # 2. Display Metrics
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Sequence Length", f"{seq_len} bp")
-        col2.metric("GC Content", f"{gc_content:.2f}%")
-        col3.metric("Type", "DNA" if "T" in raw_seq else "RNA/Other")
-        
+        # 2. Advanced Metrics Row
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Length", f"{seq_len} bp")
+        col2.metric("GC Content", f"{gc_content:.1f}%")
+        col3.metric("AT Content", f"{at_content:.1f}%")
+        # Molecular Weight Calculation (Average g/mol for DNA bases)
+        mw = (raw_seq.count('A')*313.2) + (raw_seq.count('T')*304.2) + (raw_seq.count('C')*289.2) + (raw_seq.count('G')*329.2)
+        col4.metric("Est. Mol. Weight", f"{mw:,.1f} Da")
+
         # 3. Visualization
         import pandas as pd
         import plotly.express as px
-        
-        base_counts = {
-            'Base': ['Adenine (A)', 'Thymine (T)', 'Guanine (G)', 'Cytosine (C)'],
+        base_data = pd.DataFrame({
+            'Nucleotide': ['A', 'T', 'G', 'C'],
             'Count': [raw_seq.count('A'), raw_seq.count('T'), raw_seq.count('G'), raw_seq.count('C')]
-        }
-        df_plot = pd.DataFrame(base_counts)
-        
-        fig = px.bar(df_plot, x='Base', y='Count', 
-                     title="Nucleotide Distribution",
-                     color='Base',
-                     color_discrete_sequence=["#FF4B4B", "#1C83E1", "#00C78C", "#FACA2B"])
-        
+        })
+        fig = px.bar(base_data, x='Nucleotide', y='Count', color='Nucleotide', 
+                     color_discrete_map={'A':'#FF4B4B', 'T':'#1C83E1', 'G':'#00C78C', 'C':'#FACA2B'})
         st.plotly_chart(fig, use_container_width=True)
+
+        # 4. The "Tools" Section (Expander style to keep it clean)
+        col_left, col_right = st.columns(2)
         
-        # 4. Complementary Strand Feature
-        with st.expander("🔗 Generate Complementary Strand"):
-            pairs = {"A": "T", "T": "A", "G": "C", "C": "G"}
-            complement = "".join([pairs.get(base, "N") for base in raw_seq])
-            st.code(f"Original: {raw_seq}\nComp:     {complement}")                
+        with col_left:
+            with st.expander("🔗 Complementary Strand"):
+                pairs = {"A": "T", "T": "A", "G": "C", "C": "G"}
+                comp = "".join([pairs.get(b, "N") for b in raw_seq])
+                st.code(f"5'- {raw_seq} -3'\n3'- {comp} -5'")
+        
+        with col_right:
+            with st.expander("🧪 Protein Translation"):
+                # Simple Translation Logic
+                codon_map = {'ATG':'M','TAA':'_','TAG':'_','TGA':'_','GCA':'A','GCC':'A','GCG':'A','GCT':'A'} # Add more if needed
+                protein = ""
+                for i in range(0, len(raw_seq)-2, 3):
+                    codon = raw_seq[i:i+3]
+                    protein += codon_map.get(codon, '?')
+                st.write(f"**Protein:** `{protein}`")
+
+        # 5. Scientific Insight (From your 2nd image)
+        if gc_content > 60:
+            st.warning("⚠️ High GC Content: This sequence is very stable and might require higher melting temperatures in PCR.")
+        elif gc_content < 40:
+            st.info("ℹ️ Low GC Content: Typical of AT-rich regions or specific regulatory elements.")
+        else:
+            st.success("✅ Balanced GC Content: Normal genomic distribution.")        
 # =========================
 # SIDEBAR: RESEARCH REPORT
 # =========================
