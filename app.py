@@ -141,36 +141,37 @@ with tabs[0]:
 """, unsafe_allow_html=True)
 
         # 1. PROGRESS BAR
-        progress_value = (st.session_state.page_index + 1) / len(knowledge_df)
-        st.progress(progress_value)
+       progress_value = (st.session_state.page_index + 1) / len(knowledge_df)
+st.progress(progress_value)
 
-        # 2. THE NAVIGATION ROW
-        # We wrap this in a container to isolate the CSS
-        with st.container():
-            st.markdown('<div class="nav-wrapper">', unsafe_allow_html=True)
-            c1, c2, c3, c4 = st.columns([0.8, 1.2, 0.8, 4], gap="small")
-            
-            with c1:
-                # Adding a unique key ensures these buttons are treated differently
-                if st.button("⬅ PREV", key="nav_prev", disabled=st.session_state.page_index == 0):
-                    st.session_state.page_index = max(0, st.session_state.page_index - 1)
-                    st.rerun()
-            
-            with c2:
-                st.markdown(f"""
-                    <div class="page-indicator">
-                        <small style='color:#555; font-size:0.55rem; text-transform: uppercase; line-height:1;'>PAGE</small>
-                        <span style='font-weight:bold; font-size:0.9rem; color:#1e468a;'>{st.session_state.page_index + 1} / {len(knowledge_df)}</span>
-                    </div>
-                """, unsafe_allow_html=True)
-            
-            with c3:
-                if st.button("NEXT ➡", key="nav_next", disabled=st.session_state.page_index == len(knowledge_df) - 1):
-                    st.session_state.page_index = min(len(knowledge_df) - 1, st.session_state.page_index + 1)
-                    st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
+        # 2️⃣ TIGHT, CONTROLLED COLUMNS (NO EXTRA SPACE)
+c1, c2, c3 = st.columns([1, 1.2, 1], gap="small")
 
-        st.divider()
+with c1:
+    st.markdown('<div class="nav-btn">', unsafe_allow_html=True)
+    if st.button("⬅ PREV", disabled=st.session_state.page_index == 0):
+        st.session_state.page_index = max(0, st.session_state.page_index - 1)
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with c2:
+    st.markdown(f"""
+        <div class="page-indicator">
+            <small style="font-size:0.55rem; color:#555; line-height:1;">PAGE</small>
+            <span style="font-weight:700; font-size:0.9rem; color:#1e468a;">
+                {st.session_state.page_index + 1} / {len(knowledge_df)}
+            </span>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c3:
+    st.markdown('<div class="nav-btn">', unsafe_allow_html=True)
+    if st.button("NEXT ➡", disabled=st.session_state.page_index == len(knowledge_df) - 1):
+        st.session_state.page_index = min(len(knowledge_df) - 1, st.session_state.page_index + 1)
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.divider()
 
 
 
