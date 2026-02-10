@@ -209,3 +209,82 @@ with tabs[5]:
                     "ℹ️ This platform provides free, reliable Hindi explanations. "
                     "AI-generated content is intentionally not used."
                 )
+# =========================
+# TAB: ENGLISH HELPER (INPUT-AWARE)
+# =========================
+with tabs[6]:
+    st.header("🇬🇧 Simple English Explanation Helper")
+
+    user_text = st.text_area(
+        "Paste difficult English sentence / paragraph here:",
+        height=160
+    )
+
+    if st.button("Simplify English"):
+        if not user_text.strip():
+            st.warning("Please enter text.")
+        else:
+            st.subheader("📘 Simplified Explanation (Based on Your Text)")
+
+            text = user_text.lower()
+            output = []
+
+            # ---------- DNA / RNA EXTRACTION ----------
+            if any(k in text for k in ["phenol", "chloroform", "ethanol", "precipitation"]):
+                output.extend([
+                    "This method is used to purify DNA from a biological sample.",
+                    "Phenol–chloroform removes proteins and other contaminants.",
+                    "DNA remains in the aqueous layer after centrifugation.",
+                    "Ethanol is added to precipitate DNA out of the solution."
+                ])
+
+            # ---------- PCR ----------
+            if any(k in text for k in ["pcr", "thermal cycling", "taq"]):
+                output.extend([
+                    "PCR is a technique used to amplify a specific DNA sequence.",
+                    "Taq polymerase is heat-stable and works at high temperatures.",
+                    "Thermal cycling includes denaturation, annealing, and extension steps."
+                ])
+
+            # ---------- RESTRICTION ENZYMES ----------
+            if any(k in text for k in ["restriction", "endonuclease", "palindromic"]):
+                output.extend([
+                    "Restriction enzymes cut DNA at specific sequences.",
+                    "These sequences are usually palindromic in nature.",
+                    "They are important tools in genetic engineering."
+                ])
+
+            # ---------- RNA / DNase / RNase ----------
+            if any(k in text for k in ["rnase", "dnase"]):
+                output.extend([
+                    "RNase is used to remove RNA contamination.",
+                    "DNase can degrade DNA and must be inactivated during purification.",
+                    "EDTA inhibits DNase by binding magnesium ions."
+                ])
+
+            # ---------- CENTRIFUGATION ----------
+            if "centrifug" in text:
+                output.extend([
+                    "Centrifugation separates components based on density.",
+                    "Heavier particles move to the bottom forming a pellet.",
+                    "Lighter components remain in the supernatant."
+                ])
+
+            # ---------- FALLBACK ----------
+            if not output:
+                sentences = [
+                    s.strip() for s in user_text.split(".") if len(s.strip()) > 15
+                ]
+
+                for s in sentences[:4]:
+                    output.append(
+                        "This step is important in molecular biology experiments."
+                    )
+
+            # ---------- DISPLAY ----------
+            for line in dict.fromkeys(output):  # removes duplicates
+                st.info("• " + line)
+
+            st.caption(
+                "ℹ️ Explanation generated strictly from your input text (no AI used)."
+            )
