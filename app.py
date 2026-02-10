@@ -52,37 +52,100 @@ if "page_index" not in st.session_state:
     st.session_state.page_index = 0
 
 # =========================
-# SMART HINGLISH ENGINE (FORCE-FIXED)
+# TOPIC DETECTION
 # =========================
-def generate_smart_hinglish(english_text, hindi_text):
-    from indic_transliteration import sanscript
-    from indic_transliteration.sanscript import transliterate
-    import re
+def detect_topic(text):
+    t = text.lower()
 
-    # 1. Convert Hindi to Roman sounds
-    text = transliterate(hindi_text, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
+    if any(k in t for k in ["phenol", "ethanol", "dnase", "rnase", "extraction"]):
+        return "dna_extraction"
+    if any(k in t for k in ["pcr", "taq", "thermal cycling"]):
+        return "pcr"
+    if any(k in t for k in ["restriction enzyme", "endonuclease"]):
+        return "restriction"
+    if any(k in t for k in ["huntington", "ptc518", "votoplam"]):
+        return "neurogenetics"
+    if any(k in t for k in ["immunotherapy", "cd40", "antibody"]):
+        return "immunology"
 
-    # 2. Manual "Chat Style" Fixes
-    fixes = {
-        "shha": "sh", "aa": "a", "haim": "hain", "mam": "mein", 
-        "upayoga": "use", "karake": "karke", "lie": "liye",
-        "vishi": "specific", "badhane": "increase", "lakshyom": "targets",
-        "ba.dhane": "increase"
+    return "general"
+
+# =========================
+# SMART HINGLISH (DYNAMIC)
+# =========================
+def generate_hinglish(topic):
+    data = {
+        "dna_extraction": [
+            "Cell se DNA nikalne ke baad proteins remove kiye jaate hain.",
+            "RNase RNA ko degrade karta hai, DNase ko inactivate karna zaroori hota hai.",
+            "Phenol–chloroform extraction proteins ko separate karta hai.",
+            "Ethanol precipitation se DNA solution se bahar aata hai.",
+            "EDTA DNase activity ko inhibit karta hai."
+        ],
+        "pcr": [
+            "PCR ek technique hai jisme DNA ki multiple copies banti hain.",
+            "Taq polymerase heat-stable hota hai.",
+            "Thermal cycling mein denaturation, annealing aur extension steps hote hain."
+        ],
+        "restriction": [
+            "Restriction enzymes DNA ko specific palindromic sites par cut karte hain.",
+            "Ye molecular cloning ke liye important hote hain.",
+            "Sticky ends ligation ko easy banaate hain."
+        ],
+        "neurogenetics": [
+            "Huntington’s disease ek genetic neurodegenerative disorder hai.",
+            "PTC518 (Votoplam) ek splicing modifier hai.",
+            "Ye mutant huntingtin expression ko reduce karta hai."
+        ],
+        "immunology": [
+            "Immunotherapy immune system ko activate karti hai.",
+            "CD40 immune activation mein important role play karta hai.",
+            "Antibody-based therapies targeted hoti hain."
+        ],
+        "general": [
+            "Yeh biology ka ek important concept hai.",
+            "Exam ke liye definition aur mechanism samajhna kaafi hota hai."
+        ]
     }
-    for old, new in fixes.items():
-        text = text.replace(old, new)
 
-    # 3. THE FORCE-FIX: This replaces the broken words with original English
-    # We look for the broken patterns and swap them out
-    text = re.sub(r'die[a-z]*', 'DNA', text)
-    text = re.sub(r'saika[a-z]*', 'cycling', text)
-    text = re.sub(r'thar[a-z]*', 'thermal', text)
-    text = re.sub(r'taka', 'Taq', text)
-    text = re.sub(r'polima[a-z]*', 'polymerase', text)
-    text = re.sub(r'vishi[a-z]*', 'specific', text)
-    text = re.sub(r'laksh[a-z]*', 'targets', text)
+    return "\n".join("• " + line for line in data[topic])
 
-    return text.strip().capitalize()
+# =========================
+# EXAM TIPS (DYNAMIC)
+# =========================
+def generate_exam_tips(topic):
+    tips = {
+        "dna_extraction": [
+            "DNase DNA ko degrade karta hai, isliye EDTA use hota hai.",
+            "RNase heat-stable hota hai, DNase nahi.",
+            "Phenol–chloroform protein removal ke liye hota hai."
+        ],
+        "pcr": [
+            "Taq polymerase Thermus aquaticus se milta hai.",
+            "PCR exponential amplification dikhata hai.",
+            "Annealing temperature primer-dependent hota hai."
+        ],
+        "restriction": [
+            "Most restriction enzymes Type II hote hain.",
+            "Recognition sites palindromic hoti hain.",
+            "Sticky ends blunt ends se better hote hain."
+        ],
+        "neurogenetics": [
+            "Huntington’s disease autosomal dominant hoti hai.",
+            "CAG repeat expansion HTT gene mein hota hai.",
+            "Splicing modifiers gene expression alter karte hain."
+        ],
+        "immunology": [
+            "CD40–CD40L interaction immune activation ke liye important hai.",
+            "Monoclonal antibodies targeted therapy hoti hain.",
+            "Immunotherapy adaptive immunity ko activate karti hai."
+        ],
+        "general": [
+            "Definition + mechanism + application exam ke liye enough hota hai."
+        ]
+    }
+    return tips[topic]
+
 # =========================
 # MAIN APP
 # =========================
@@ -106,9 +169,8 @@ with tabs[0]:
     col1, col2, col3 = st.columns([1, 2, 1])
 
     if col1.button("⬅ Previous"):
-        if st.session_state.page_index > 0:
-            st.session_state.page_index -= 1
-            st.rerun()
+        st.session_state.page_index = max(0, st.session_state.page_index - 1)
+        st.rerun()
 
     col2.markdown(
         f"<h3 style='text-align:center;'>Page {st.session_state.page_index + 1} of {len(knowledge_df)}</h3>",
@@ -116,37 +178,25 @@ with tabs[0]:
     )
 
     if col3.button("Next ➡"):
-        if st.session_state.page_index < len(knowledge_df) - 1:
-            st.session_state.page_index += 1
-            st.rerun()
+        st.session_state.page_index = min(len(knowledge_df) - 1, st.session_state.page_index + 1)
+        st.rerun()
 
     st.divider()
     row = knowledge_df.iloc[st.session_state.page_index]
 
     left, right = st.columns([2, 1])
-
     with left:
         st.header(row.get("Topic", "Untitled"))
         st.write(row.get("Explanation", ""))
 
         with st.expander("📘 Read Detailed Explanation"):
-            st.write(
-                row.get(
-                    "Detailed_Explanation",
-                    "No additional explanation available."
-                )
-            )
+            st.write(row.get("Detailed_Explanation", "No extra explanation available."))
 
     with right:
-        # --- FIXED INDENTATION HERE ---
         img = str(row.get("Image", ""))
         if img and os.path.exists(img):
-            with st.expander("🖼️ Show Diagram", expanded=True):
-                # FIXED: use_container_width for high resolution
+            with st.expander("🖼️ Show Diagram"):
                 st.image(img, use_container_width=True)
-                st.caption("🔍 Click the arrows on the image to view Fullscreen (HD)")
-        else:
-            st.info("No diagram available.")
 
 # =========================
 # TAB 2: 10 POINTS
@@ -156,21 +206,18 @@ with tabs[1]:
     points = row.get("Ten_Points", "")
     if isinstance(points, str) and points.strip():
         for p in points.split("\n"):
-            if p.strip():
-                st.write("•", p.strip())
+            st.write("•", p.strip())
     else:
-        st.info("10-point summary not available for this topic.")
+        st.info("No exam points available.")
 
 # =========================
 # TAB 3: DNA LAB
 # =========================
 with tabs[2]:
     st.header("🔬 DNA Analysis Tool")
-    seq = st.text_area("Paste DNA sequence:", "ATGC").upper().strip()
+    seq = st.text_area("Paste DNA sequence:", "ATGC").upper()
     if st.button("Analyze"):
-        if seq:
-            gc = (seq.count("G") + seq.count("C")) / len(seq) * 100
-            st.metric("GC Content", f"{gc:.2f}%")
+        st.metric("GC Content", f"{(seq.count('G') + seq.count('C')) / len(seq) * 100:.2f}%")
 
 # =========================
 # TAB 4: SEARCH
@@ -178,90 +225,46 @@ with tabs[2]:
 with tabs[3]:
     st.header("🔍 Smart Search")
     query = st.text_input("Search term").lower()
-    if query:
-        matches = []
-        for i, r in knowledge_df.iterrows():
-            if query in str(r.get("Topic", "")).lower() or query in str(r.get("Explanation", "")).lower():
-                matches.append(i)
-        if matches:
-            for i in matches:
-                r = knowledge_df.iloc[i]
-                with st.expander(f"{r['Topic']} (Page {i+1})"):
-                    st.write(r["Explanation"])
-                    if st.button(f"Go to Page {i+1}", key=f"go_{i}"):
-                        st.session_state.page_index = i
-                        st.rerun()
-        else:
-            st.warning("No results found.")
+    for i, r in knowledge_df.iterrows():
+        if query and query in str(r.get("Topic", "")).lower():
+            with st.expander(r["Topic"]):
+                st.write(r["Explanation"])
+                if st.button("Go", key=i):
+                    st.session_state.page_index = i
+                    st.rerun()
 
 # =========================
 # TAB 5: DATA
 # =========================
 with tabs[4]:
-    st.header("📊 CSV Viewer")
     file = st.file_uploader("Upload CSV", type="csv")
     if file:
         st.dataframe(pd.read_csv(file))
 
 # =========================
-# TAB 6: HINGLISH HELPER (FIXED)
+# TAB 6: HINGLISH HELPER (FINAL)
 # =========================
 with tabs[5]:
     st.header("🇮🇳 Hindi & Hinglish Helper")
 
-    text = st.text_area(
-        "Paste English sentence / paragraph here:",
-        height=150
-    )
+    text = st.text_area("Paste English text here:", height=150)
 
     if st.button("Translate & Explain"):
-        if not text.strip():
-            st.warning("Please enter text.")
-        else:
-            with st.spinner("Processing..."):
+        hindi = GoogleTranslator(source="auto", target="hi").translate(text)
+        topic = detect_topic(text)
+        hinglish = generate_hinglish(topic)
+        exam_tips = generate_exam_tips(topic)
 
-                # -------- PURE HINDI (AS IT IS) --------
-                hindi = GoogleTranslator(source="auto", target="hi").translate(text)
+        c1, c2 = st.columns(2)
+        with c1:
+            st.subheader("📝 Pure Hindi")
+            st.info(hindi)
 
-                # -------- SMART HINGLISH (SUMMARY STYLE) --------
-                hinglish = (
-                    "• Cell se nucleic acid nikalne ke baad proteins ko remove kiya jaata hai.\n"
-                    "• RNase treatment RNA ko degrade karta hai, lekin DNase ko inactivate karna zaroori hota hai.\n"
-                    "• Phenol–chloroform extraction proteins ko separate karta hai.\n"
-                    "• Ethanol precipitation se DNA solution se bahar aata hai.\n"
-                    "• EDTA DNase activity ko inhibit karta hai.\n"
-                    "• DNA ko 4°C par short-term aur −20°C par long-term store kiya ja sakta hai."
-                )
+        with c2:
+            st.subheader("🗣 Smart Hinglish")
+            st.code(hinglish, language="text")
 
-                # -------- DISPLAY --------
-                c1, c2 = st.columns(2)
-
-                with c1:
-                    st.subheader("📝 Pure Hindi")
-                    st.info(hindi)
-
-                with c2:
-                    st.subheader("🗣 Smart Hinglish (Exam + Concept)")
-                    st.success(hinglish)
-
-                    # COPY BUTTON (NO EXTRA BOX)
-                    if st.button("📋 Copy Hinglish"):
-                        st.session_state["copied_hinglish"] = hinglish
-                        st.toast("Hinglish copied!", icon="✅")
-
-                # -------- EXAM TIPS (FIXED & HINGLISH) --------
-                st.divider()
-                st.subheader("🧠 Exam Tips")
-
-                exam_tips = [
-                    "DNase DNA ko degrade karta hai, isliye uska removal bahut important hai.",
-                    "EDTA DNase ko inhibit karta hai by chelating Mg²⁺ ions.",
-                    "RNase heat-stable hota hai, DNase nahi.",
-                    "Phenol–chloroform extraction protein removal ke liye use hota hai.",
-                    "Ethanol precipitation DNA purification ka common step hai."
-                ]
-
-                for tip in exam_tips:
-                    st.info("• " + tip)
-
-
+        st.divider()
+        st.subheader("🧠 Exam Tips")
+        for tip in exam_tips:
+            st.info("• " + tip)
