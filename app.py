@@ -109,25 +109,27 @@ with tabs[0]:
     if knowledge_df.empty:
         st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
-                                                                                                      # --- TARGETED BLUE STYLE (SAFE) ---
+                                                                                                      # --- THE FINAL PRO FIX ---
         st.markdown("""
             <style>
-                /* Only color buttons that contain these specific arrows */
-                button:contains("⬅"), button:contains("➡") {
+                /* 1. Target ONLY buttons inside the nav-bar container */
+                div.nav-bar button {
                     background-color: #1e468a !important;
                     color: white !important;
+                    border-radius: 8px !important;
+                    height: 40px !important;
                     border: none !important;
                     font-weight: bold !important;
-                    height: 42px !important;
+                    width: 100% !important;
                 }
-                /* Ensure the grey box matches the button height exactly */
-                .page-box-final {
-                    border: 1px solid #ddd;
-                    border-radius: 5px;
-                    padding: 2px;
+                
+                /* 2. Style the Page Box to match exactly */
+                .page-indicator-box {
                     text-align: center;
-                    background-color: #f9f9f9;
-                    height: 42px;
+                    background: #f0f2f6;
+                    border-radius: 8px;
+                    height: 40px;
+                    border: 1px solid #d1d5db;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -135,29 +137,38 @@ with tabs[0]:
             </style>
         """, unsafe_allow_html=True)
 
-        # 1. PROGRESS BAR
+        # Progress Bar
         st.progress((st.session_state.page_index + 1) / len(knowledge_df))
 
-        # 2. NAVIGATION
-        c1, c2, c3, c4 = st.columns([0.8, 1.0, 0.8, 4], gap="small")
-        
-        with c1:
-            if st.button("⬅ PREV", key="p1", use_container_width=True, disabled=st.session_state.page_index == 0):
-                st.session_state.page_index -= 1
-                st.rerun()
-        with c2:
-            st.markdown(f"""
-                <div class="page-box-final">
-                    <p style="margin:0; font-size:0.6rem; color:gray; text-transform:uppercase;">PAGE</p>
-                    <p style="margin:0; font-weight:bold; font-size:1rem; color:#1e468a;">{st.session_state.page_index + 1} / {len(knowledge_df)}</p>
-                </div>
-            """, unsafe_allow_html=True)
-        with c3:
-            if st.button("NEXT ➡", key="n1", use_container_width=True, disabled=st.session_state.page_index == len(knowledge_df)-1):
-                st.session_state.page_index += 1
-                st.rerun()
+        # 3. Use a container to "lock" the CSS to these buttons only
+        with st.container():
+            # This HTML class name 'nav-bar' is what our CSS above looks for
+            st.markdown('<div class="nav-bar">', unsafe_allow_html=True)
+            
+            # Narrower ratios [0.6, 0.8, 0.6, 4] pull everything to the left
+            c1, c2, c3, c4 = st.columns([0.6, 0.8, 0.6, 4], gap="small")
+            
+            with c1:
+                if st.button("⬅ PREV", key="nav_prev", disabled=st.session_state.page_index == 0):
+                    st.session_state.page_index -= 1
+                    st.rerun()
+            
+            with c2:
+                st.markdown(f"""
+                    <div class="page-indicator-box">
+                        <small style='color:#555; font-size:0.55rem; text-transform: uppercase; line-height:1;'>PAGE</small>
+                        <span style='font-weight:bold; font-size:0.9rem; color:#1e468a;'>{st.session_state.page_index + 1} / {len(knowledge_df)}</span>
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            with c3:
+                if st.button("NEXT ➡", key="nav_next", disabled=st.session_state.page_index == len(knowledge_df)-1):
+                    st.session_state.page_index += 1
+                    st.rerun()
+            
+            st.markdown('</div>', unsafe_allow_html=True)
 
-
+        st.divider()
 
         
         # Define current row and save to session state
