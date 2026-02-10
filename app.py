@@ -238,5 +238,18 @@ with tabs[5]:
             with c2:
                 st.subheader("🗣 Smart Hinglish")
                 st.success(hinglish)
+			st.divider()
+            st.subheader("🔬 Key Biotech Terms")
+
+                terms = {
+                    "taq": "Taq Polymerase: Heat-stable enzyme used in PCR.",
+                    "thermal cycling": "Thermal cycling: Repeated heating and cooling in PCR.",
+                    "dna": "DNA: Genetic material of cells.",
+                    "pcr": "PCR: Technique to amplify DNA."
+                }
+
+                for k, v in terms.items():
+                    if k in text.lower():
+                        st.info(v)
         else:
             st.warning("Please enter text.")
