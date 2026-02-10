@@ -143,7 +143,7 @@ if knowledge_df is not None:
         if up:
             st.dataframe(pd.read_csv(up))
 
-          # --- TAB 4: HINDI & HINGLISH HELPER ---
+             # --- TAB 4: HINDI & HINGLISH HELPER ---
     with tabs[4]:
         st.header("🇮🇳 Language Support Center")
         to_translate = st.text_area("Paste English sentence here:", height=100)
@@ -154,30 +154,41 @@ if knowledge_df is not None:
                     # 1. Get Pure Hindi (Devanagari)
                     hindi_text = GoogleTranslator(source='auto', target='hi').translate(to_translate)
                     
-                    # 2. CREATE NATURAL HINGLISH (WhatsApp Style)
-                    # Instead of a library, we use a sound-based transliteration + word recovery
+                    # 2. CREATE NATURAL HINGLISH (The "Shield" Method)
+                    # This ensures technical words NEVER get butchered
+                    
+                    # Step A: Common Chat Sound Fixes
                     hinglish_roman = transliterate(hindi_text, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
-
-                    # FIX 1: Direct Sound Correction (The "Chat" feel)
-                    corrections = {
-                        "ai": "e", "aa": "a", "shha": "sh", "haim": "hain", 
-                        "mam": "mein", "lie": "liye", "upayoga": "use",
-                        "karake": "karke", "saikala": "cycle", "tharmala": "thermal",
-                        "lakshyom": "targets", "badhane": "increase"
+                    
+                    fixes = {
+                        "shha": "sh", "aa": "a", "haim": "hain", "mam": "mein", 
+                        "upayoga": "use", "karke": "karke", "liye": "liye", 
+                        "vishi": "specific", "lakshyom": "targets", "badhane": "increase"
                     }
-                    for old, new in corrections.items():
+                    for old, new in fixes.items():
                         hinglish_roman = hinglish_roman.replace(old, new)
 
-                    # FIX 2: Bio-Term Recovery
-                    # This ensures words like 'Taq', 'DNA', 'Thermal Cycling' stay in English
-                    original_words = to_translate.split()
-                    for word in original_words:
-                        clean_word = word.lower().strip(".,() ")
-                        if len(clean_word) > 2: # Only fix words longer than 2 letters
-                            # If the transliteration butchered an English word, put the English word back
+                    # Step B: PROTECT SCIENTIFIC TERMS
+                    # We look at the original English text and force those words into the Hinglish
+                    bio_dictionary = [
+                        "dna", "taq", "polymerase", "thermal", "cycling", 
+                        "pcr", "enzyme", "sequence", "palindromic", "vector"
+                    ]
+                    
+                    # Clean the Hinglish from weird library artifacts
+                    hinglish_roman = hinglish_roman.replace("sekalimga", "cycling")
+                    hinglish_roman = hinglish_roman.replace("dienae", "DNA")
+                    hinglish_roman = hinglish_roman.replace("tharmala", "thermal")
+                    
+                    # Final check: If any word from our Bio-Dictionary was in the original,
+                    # make sure it is correct in the Hinglish
+                    for word in bio_dictionary:
+                        if word in to_translate.lower():
+                            # This regex finds any weird version the library made and fixes it
                             import re
-                            pattern = clean_word[:3] # Look for the first 3 letters
-                            hinglish_roman = re.sub(pattern + r'[a-z]*', clean_word, hinglish_roman)
+                            # Replace any word starting with the first 2 letters of the bio word
+                            pattern = r'\b' + word[:2] + r'[a-z]*\b'
+                            hinglish_roman = re.sub(pattern, word, hinglish_roman)
 
                     # Final Polish
                     hinglish_roman = hinglish_roman.replace("dna", "DNA").replace("taq", "Taq")
