@@ -18,9 +18,13 @@ st.set_page_config(
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.title("🛡️ Bio-Verify 2026")
-    st.write(f"**current_date = datetime.date.today().strftime("%d %b %Y").upper()
-
+    st.title("Bio-Verify")
+    
+    # This is the fix:
+    current_date = datetime.date.today().strftime("%d %b %Y").upper()
+    st.write(f"📅 **{current_date}**")
+    
+    st.divider()
     st.success("✅ Live API Connection: Active")
     st.info("Verified Data Sources: NCBI, Wikipedia, Google")
     st.divider()
