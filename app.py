@@ -24,7 +24,10 @@ with st.sidebar:
     # This is the fix:
     ist = pytz.timezone("Asia/Kolkata")
     today_auto = datetime.datetime.now(ist).strftime("%d %b %Y")
-
+EXAMS = {
+    "CSIR NET": datetime.date(2026, 6, 21),
+    "GATE BT": datetime.date(2026, 2, 7)
+}
     st.sidebar.title(f"📅 {today_auto.upper()}")
     
     st.divider()
