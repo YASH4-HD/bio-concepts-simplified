@@ -6,7 +6,7 @@ from deep_translator import GoogleTranslator
 import requests
 import wikipedia
 import datetime
-
+import plotly.express as px
 # =========================
 # PAGE CONFIG
 # =========================
@@ -203,19 +203,63 @@ with tabs[1]:
         st.warning("⚠️ Please go to the 'Reader' tab and select a topic first!")
 
 # =========================
-# TAB 3: DNA LAB
+# TAB 3: DNA LAB (Updated)
 # =========================
 with tabs[2]:
     st.header("🔬 DNA Analysis Tool")
-    seq = st.text_area("Paste DNA sequence (A, T, G, C):", "ATGC").upper().strip()
+    st.info("Analyze nucleotide distribution and GC content for genomic sequences.")
+    
+    seq = st.text_area("Paste DNA sequence (A, T, G, C):", "ATGCGATCGTAGCTAGCTACGATCGTAGCT").upper().strip()
+    
     if st.button("Analyze Sequence"):
         if seq:
-            try:
-                gc = (seq.count("G") + seq.count("C")) / len(seq) * 100
-                st.metric("GC Content", f"{gc:.2f}%")
-                st.text(f"Length: {len(seq)} bp")
-            except ZeroDivisionError:
-                st.error("Invalid sequence.")
+            # Check for invalid characters
+            valid_bases = set("ATGC")
+            if not all(base in valid_bases for base in seq):
+                st.error("⚠️ Invalid sequence detected! Please use only A, T, G, and C.")
+            else:
+                # 1. Metrics
+                c1, c2, c3 = st.columns(3)
+                gc_content = (seq.count("G") + seq.count("C")) / len(seq) * 100
+                
+                c1.metric("Sequence Length", f"{len(seq)} bp")
+                c2.metric("GC Content", f"{gc_content:.2f}%")
+                c3.metric("AT Content", f"{100 - gc_content:.2f}%")
+                
+                st.divider()
+                
+                # 2. Visualization
+                st.subheader("📊 Nucleotide Distribution")
+                counts = {
+                    "Nucleotide": ["Adenine (A)", "Thymine (T)", "Guanine (G)", "Cytosine (C)"],
+                    "Count": [seq.count("A"), seq.count("T"), seq.count("G"), seq.count("C")]
+                }
+                df_counts = pd.DataFrame(counts)
+                
+                # Create Plotly Chart
+                fig = px.bar(
+                    df_counts, 
+                    x="Nucleotide", 
+                    y="Count", 
+                    color="Nucleotide",
+                    color_discrete_map={
+                        "Adenine (A)": "#FF4B4B", 
+                        "Thymine (T)": "#FFA421", 
+                        "Guanine (G)": "#31333F", 
+                        "Cytosine (C)": "#0068C9"
+                    },
+                    template="plotly_white"
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # 3. Simple Bioinformatics Insight
+                if gc_content > 50:
+                    st.success("💡 **Insight:** High GC content suggests higher thermal stability (common in extremophiles).")
+                else:
+                    st.info("💡 **Insight:** Normal/Low GC content detected, typical of many standard genomic regions.")
+        else:
+            st.warning("Please enter a sequence first.")
 
 # =========================
 # TAB 4: INTERNAL SEARCH
