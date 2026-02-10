@@ -109,21 +109,22 @@ with tabs[0]:
     if knowledge_df.empty:
         st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
-                                       # --- LEFT-ALIGNED COMPACT NAVIGATION ---
+                                               # --- TARGETED NAVIGATION CSS ---
         st.markdown("""
             <style>
-                /* Sleek Small Buttons */
-                div.stButton > button {
+                /* ONLY target buttons inside the navigation columns using a specific container */
+                [data-testid="stHorizontalBlock"] div.stButton > button {
                     background-color: #1e468a !important;
                     color: white !important;
                     border-radius: 8px !important;
                     height: 40px !important;
-                    width: 100px !important; /* Fixed width to keep it small */
                     border: none !important;
                     font-size: 0.8rem !important;
                     font-weight: bold !important;
+                    width: 100% !important; /* Let the column control the width */
                 }
-                /* Progress bar color */
+                
+                /* Keep the progress bar clean */
                 .stProgress > div > div > div > div {
                     background-image: linear-gradient(to right, #1e468a , #4facfe);
                     height: 6px;
