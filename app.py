@@ -19,7 +19,8 @@ st.set_page_config(
 # --- SIDEBAR ---
 with st.sidebar:
     st.title("🛡️ Bio-Verify 2026")
-    st.write(f"**Current Date:** {datetime.date.today().strftime('%d %b %Y')}")
+    st.write(f"**current_date = datetime.date.today().strftime("%d %b %Y").upper()
+
     st.success("✅ Live API Connection: Active")
     st.info("Verified Data Sources: NCBI, Wikipedia, Google")
     st.divider()
