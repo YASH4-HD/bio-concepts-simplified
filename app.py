@@ -95,7 +95,7 @@ with tabs[0]:
             st.rerun()
 
         st.divider()
-        row = knowledge_df.iloc[st.session_state.page_index]
+        st.session_state['selected_row'] = row
         left, right = st.columns([2, 1])
         
         with left:
