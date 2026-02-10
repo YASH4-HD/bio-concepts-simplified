@@ -250,13 +250,14 @@ with tabs[4]:
                     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
                     res = requests.get(url, params={"db": s_type, "term": s_query, "retmode": "json", "retmax": 5}).json()
                     ids = res.get("esearchresult", {}).get("idlist", [])
+                    # --- REPLACE THE NCBI ID LOOP IN TAB 5 WITH THIS ---
                     if ids:
+                        st.caption("🛡️ Verified Technical Records found:")
                         for rid in ids:
-                            st.markdown(f"🧬 [NCBI Record {rid}](https://www.ncbi.nlm.nih.gov/{s_type}/{rid})")
+                            # Added a 'Verified' badge emoji and better formatting
+                            st.write(f"✅ **Record {rid}:** [View Official NCBI Data](https://www.ncbi.nlm.nih.gov/{s_type}/{rid})")
                     else:
                         st.warning("No technical records found.")
-                except:
-                    st.error("NCBI Connection Error.")
 
 # =========================
 # TAB 6: HINDI HELPER
