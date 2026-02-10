@@ -113,32 +113,32 @@ with tabs[0]:
         # We wrap the navigation in a div with a unique ID 'nav-container'
         st.markdown("""
             <style>
-                /* This targets ONLY buttons inside the div we are about to create */
-                div[data-testid="stVerticalBlock"] > div:has(div.nav-wrapper) button {
-                    background-color: #1e468a !important;
-                    color: white !important;
-                    border-radius: 6px !important;
-                    height: 38px !important;
-                    border: none !important;
-                    font-size: 0.8rem !important;
-                    font-weight: bold !important;
-                    width: 100% !important;
-                    padding: 0px !important;
-                }
+               /* Scope styles only to navigation */
+.nav-btn button {
+    background-color: #1e468a !important;
+    color: white !important;
+    border-radius: 6px !important;
+    height: 36px !important;
+    border: none !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    padding: 0 10px !important;
+}
                 
-                .page-indicator {
-                    text-align: center;
-                    background: #f0f2f6;
-                    border-radius: 6px;
-                    padding: 2px;
-                    height: 38px;
-                    border: 1px solid #d1d5db;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                }
-            </style>
-        """, unsafe_allow_html=True)
+                /* Page indicator */
+.page-indicator {
+    text-align: center;
+    background: #f0f2f6;
+    border-radius: 6px;
+    height: 36px;
+    border: 1px solid #d1d5db;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 80px;
+}
+</style>
+""", unsafe_allow_html=True)
 
         # 1. PROGRESS BAR
         progress_value = (st.session_state.page_index + 1) / len(knowledge_df)
