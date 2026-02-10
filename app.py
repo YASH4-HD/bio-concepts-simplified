@@ -52,34 +52,39 @@ if "page_index" not in st.session_state:
     st.session_state.page_index = 0
 
 # =========================
-# SMART HINGLISH ENGINE
+# SMART HINGLISH ENGINE (FIXED)
 # =========================
-def generate_smart_hinglish(text):
-    t = text.lower()
+def generate_smart_hinglish(english_text):
+    # 1. First, get a basic translation to Hindi
+    try:
+        hindi_trans = GoogleTranslator(source="auto", target="hi").translate(english_text)
+    except:
+        return "Translation Error"
 
-    if "thermal cycling" in t and "taq" in t:
-        return (
-            "PCR mein Taq polymerase ka use hota hai, "
-            "jisme thermal cycling ke through specific DNA targets amplify kiye jaate hain."
-        )
+    # 2. Convert that Hindi into Roman (English alphabet) script
+    # This ensures even long sentences work
+    from indic_transliteration import sanscript
+    from indic_transliteration.sanscript import transliterate
+    
+    hinglish = transliterate(hindi_trans, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
 
-    if "restriction enzyme" in t:
-        return (
-            "Restriction enzymes DNA ko specific palindromic sequences par cut karte hain, "
-            "jo cloning ke liye bahut important hote hain."
-        )
+    # 3. Fix the "broken" sounds to natural chat style
+    replacements = {
+        "shha": "sh", "aa": "a", "haim": "hain", "mam": "mein", "denae": "DNA",
+        "upayoga": "use", "karke": "karke", "liye": "liye", "vishi": "specific"
+    }
+    for old, new in replacements.items():
+        hinglish = hinglish.replace(old, new)
 
-    if "enzyme" in t:
-        return (
-            "Enzyme ek biological catalyst hota hai "
-            "jo reaction ko fast karta hai bina khud consume hue."
-        )
+    # 4. Force specific Biotech words to stay in English
+    bio_words = ["dna", "rna", "isolation", "purification", "analysis", "enzyme", "pcr"]
+    for word in bio_words:
+        if word in english_text.lower():
+            import re
+            pattern = r'\b' + word[:3] + r'[a-z]*\b'
+            hinglish = re.sub(pattern, word, hinglish)
 
-    return (
-        "Simple words mein, yeh biological process lab mein "
-        "important molecules ko samajhne ke liye use hota hai."
-    )
-
+    return hinglish.capitalize()
 # =========================
 # MAIN APP
 # =========================
