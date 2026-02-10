@@ -286,61 +286,37 @@ with tabs[1]:
 # TAB 3: DNA LAB (Updated)
 # =========================
 with tabs[2]:
-    st.header("🔬 DNA Analysis Tool")
-    st.info("Analyze nucleotide distribution and GC content for genomic sequences.")
+    st.header("🧪 DNA Interactive Lab")
+    st.info("Transform and prepare your genomic sequences for analysis.")
     
-    seq = st.text_area("Paste DNA sequence (A, T, G, C):", "ATGCGATCGTAGCTAGCTACGATCGTAGCT").upper().strip()
+    raw_input = st.text_area("Enter Raw DNA (can include spaces/numbers):", "atgc 123 gtatc", key="lab_input")
     
-    if st.button("Analyze Sequence"):
-        if seq:
-            # Check for invalid characters
-            valid_bases = set("ATGC")
-            if not all(base in valid_bases for base in seq):
-                st.error("⚠️ Invalid sequence detected! Please use only A, T, G, and C.")
-            else:
-                # 1. Metrics
-                c1, c2, c3 = st.columns(3)
-                gc_content = (seq.count("G") + seq.count("C")) / len(seq) * 100
-                
-                c1.metric("Sequence Length", f"{len(seq)} bp")
-                c2.metric("GC Content", f"{gc_content:.2f}%")
-                c3.metric("AT Content", f"{100 - gc_content:.2f}%")
-                
-                st.divider()
-                
-                # 2. Visualization
-                st.subheader("📊 Nucleotide Distribution")
-                counts = {
-                    "Nucleotide": ["Adenine (A)", "Thymine (T)", "Guanine (G)", "Cytosine (C)"],
-                    "Count": [seq.count("A"), seq.count("T"), seq.count("G"), seq.count("C")]
-                }
-                df_counts = pd.DataFrame(counts)
-                
-                # Create Plotly Chart
-                fig = px.bar(
-                    df_counts, 
-                    x="Nucleotide", 
-                    y="Count", 
-                    color="Nucleotide",
-                    color_discrete_map={
-                        "Adenine (A)": "#FF4B4B", 
-                        "Thymine (T)": "#FFA421", 
-                        "Guanine (G)": "#31333F", 
-                        "Cytosine (C)": "#0068C9"
-                    },
-                    template="plotly_white"
-                )
-                
-                st.plotly_chart(fig, use_container_width=True)
-                
-                # 3. Simple Bioinformatics Insight
-                if gc_content > 50:
-                    st.success("💡 **Insight:** High GC content suggests higher thermal stability (common in extremophiles).")
-                else:
-                    st.info("💡 **Insight:** Normal/Low GC content detected, typical of many standard genomic regions.")
-        else:
-            st.warning("Please enter a sequence first.")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("🧹 Clean Sequence"):
+            # Removes numbers, spaces, and makes it uppercase
+            cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+            st.success("Cleaned Sequence:")
+            st.code(cleaned)
+            st.caption(f"Original Length: {len(raw_input)} | Cleaned Length: {len(cleaned)}")
 
+    with col2:
+        if st.button("🧬 Transcribe to mRNA"):
+            cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+            mrna = cleaned.replace("T", "U")
+            st.warning("mRNA Strand (Transcription):")
+            st.code(mrna)
+            st.markdown("*(Note: Thymine (T) is replaced by Uracil (U) in RNA)*")
+
+    st.divider()
+    st.subheader("Quick Reference")
+    st.markdown("""
+    - **A** $\rightarrow$ Adenine
+    - **T** $\rightarrow$ Thymine (DNA) / **U** $\rightarrow$ Uracil (RNA)
+    - **G** $\rightarrow$ Guanine
+    - **C** $\rightarrow$ Cytosine
+    """)
 # =========================
 # TAB 4: INTERNAL SEARCH (Updated)
 # =========================
