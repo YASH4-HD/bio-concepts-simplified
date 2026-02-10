@@ -153,7 +153,7 @@ with tabs[0]:
         # Layout: Text on Left, Diagram Spoiler on Right
         left, right = st.columns([2, 1])
         
-   with left:
+    with left:
         st.header(row.get("Topic", "Untitled"))
         
         # --- NEW: AUTO-TAG GENERATOR ---
@@ -172,7 +172,7 @@ with tabs[0]:
             st.write("") # Spacer
         
         # --- END TAGS ---
-
+    
         st.write(row.get("Explanation", "No explanation available."))
         
         with st.expander("📘 Detailed Analysis & Mechanism"):
