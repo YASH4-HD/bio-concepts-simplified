@@ -134,14 +134,16 @@ with tabs[0]:
                 )
             )
 
-    with right:
+        with right:
         img = str(row.get("Image", ""))
         if img and os.path.exists(img):
-            with st.expander("🖼️ Show Diagram"):
-                st.image(img, width=300)
-                st.caption("Click image to zoom")
+            with st.expander("🖼️ Show Diagram", expanded=True): # 'expanded=True' keeps it open
+                # FIX: Remove width=300 and use use_container_width for full quality
+                st.image(img, use_container_width=True, output_format="PNG") 
+                st.caption("🔍 Use the arrows in the top right of the image to go Fullscreen for maximum detail.")
         else:
             st.info("No diagram available.")
+
 
 # =========================
 # TAB 2: 10 POINTS
