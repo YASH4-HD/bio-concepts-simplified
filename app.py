@@ -238,6 +238,7 @@ with tabs[5]:
             with c2:
                 st.subheader("🗣 Smart Hinglish")
                 st.success(hinglish)
+				
 			st.divider()
             st.subheader("🔬 Key Biotech Terms")
 
