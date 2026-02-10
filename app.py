@@ -108,17 +108,27 @@ with tabs[0]:
             st.info("No diagram available.")
 
 # =========================
-# TAB 2: 10 POINTS
+# TAB 2: 10 POINTS (Updated)
 # =========================
 with tabs[1]:
     st.header("🧠 10 Key Exam Points")
-    points = row.get("Ten_Points", "")
+    
+    # Try both common column naming conventions
+    points = row.get("Ten_Points") if row.get("Ten_Points") else row.get("Ten Points", "")
+    
     if isinstance(points, str) and points.strip():
-        for p in points.split("\n"):
+        # This handles both comma-separated and newline-separated points
+        separator = "\n" if "\n" in points else ","
+        points_list = points.split(separator)
+        
+        for p in points_list:
             if p.strip():
-                st.write("•", p.strip())
+                st.write(f"• {p.strip()}")
     else:
         st.info("10-point summary not available.")
+        # Debug helper: shows what columns actually exist
+        with st.expander("Debug: Available Columns"):
+            st.write(list(knowledge_df.columns))
 
 # =========================
 # TAB 3: DNA LAB
