@@ -7,22 +7,46 @@ st.set_page_config(page_title="Bio-Mastery Engine", layout="wide")
 # In a real app, this could be a CSV or JSON file.
 cross_book_data = {
     "Protein Folding": {
-        "Lehninger": "Focuses on Thermodynamics (ΔG). Folding is driven by the Hydrophobic Effect and Chaperones (Hsp70).",
-        "Watson": "Focuses on the Ribosome's role and how the mRNA sequence determines the folding speed (Codon usage).",
-        "Wilson_Walker": "Techniques: Circular Dichroism (CD) to measure alpha-helices and X-ray Crystallography for final structure.",
-        "Interactive_Tool": "Folding_Sim"
+        "Lehninger": "The 'Thermodynamic' view: Focuses on ΔG, the Hydrophobic Effect, and how Chaperones (Hsp70/GroEL) prevent 'Energy Traps'.",
+        "Watson": "The 'Sequence' view: How the Ribosome speed and 'Codon Usage' affect the co-translational folding of a nascent chain.",
+        "Wilson_Walker": "The 'Structural' view: Using Circular Dichroism (CD) to track secondary structure and X-ray Crystallography for 3D atomic maps.",
+        "Exam_Focus": "What is the Levinthal Paradox? How do disulfide bonds stabilize folding?",
+        "Troubleshoot": "Protein is aggregating? Lower the temperature to 18°C or use a 'Chaperone-overexpressing' bacterial strain."
     },
-    "PCR (Polymerase Chain Reaction)": {
-        "Lehninger": "The role of Mg2+ ions as cofactors for DNA Polymerase and the stability of H-bonds at high temperatures.",
-        "Watson": "The chemical mechanism of phosphodiester bond formation and primer annealing logic.",
-        "Wilson_Walker": "Protocol design: How to calculate Tm, choosing between Taq (speed) and Pfu (accuracy) polymerases.",
-        "Interactive_Tool": "PCR_Cycle_Sim"
+    "Lac Operon": {
+        "Lehninger": "Allosteric logic: How the inducer (Allo-lactose) changes the Repressor's conformation so it loses affinity for DNA.",
+        "Watson": "Regulatory logic: Cis-acting elements (Operator/Promoter) vs Trans-acting factors (Repressor). The logic of 'Negative Regulation'.",
+        "Wilson_Walker": "Reporter Assays: Using β-galactosidase activity (X-gal staining) to quantify gene expression levels.",
+        "Exam_Focus": "Predict the phenotype of an I- or O-c mutation. (Constitutive vs Uninducible).",
+        "Troubleshoot": "High background expression? Check for 'Leaky' promoters or glucose contamination in the media (Catabolite Repression)."
     },
-    "ATP Synthase": {
-        "Lehninger": "The 'Rotary Engine' model. How the proton gradient (pH) turns the F0F1 stalk to create ATP.",
-        "Watson": "Evolutionary conservation of the genes encoding the ATPase subunits across species.",
-        "Wilson_Walker": "Using Chemiosmotic assays and Oxygen electrodes to measure the rate of oxidative phosphorylation.",
-        "Interactive_Tool": "Proton_Gradient_Sim"
+    "CRISPR-Cas9": {
+        "Lehninger": "Nuclease Chemistry: The mechanism of the RuvC and HNH domains cutting the DNA phosphodiester backbone.",
+        "Watson": "RNA-Guided Logic: How the crRNA/tracrRNA complex scans the genome for a matching sequence and a PAM (NGG) motif.",
+        "Wilson_Walker": "Genome Editing: Designing 'Guide RNAs' and verifying the 'In-del' mutations via the T7E1 Surveyor Assay.",
+        "Exam_Focus": "What is the PAM sequence and why is it essential for Cas9 but not for the host?",
+        "Troubleshoot": "Off-target effects? Use a 'High-Fidelity' Cas9 variant or improve the gRNA specificity score."
+    },
+    "Western Blotting": {
+        "Lehninger": "Binding Affinity: The non-covalent interactions (Kd) between the primary antibody and the specific protein epitope.",
+        "Watson": "Expression Proof: Proving that the 'Genetic Blueprint' was successfully translated into a functional 'Protein Machine'.",
+        "Wilson_Walker": "The Protocol: SDS-PAGE separation -> Semi-dry Transfer -> Blocking (BSA/Milk) -> Chemiluminescent detection.",
+        "Exam_Focus": "Why do we use a 'Loading Control' (like Actin or GAPDH)?",
+        "Troubleshoot": "Multiple bands? Antibody is non-specific. No bands? Transfer failed (check with Ponceau S staining)."
+    },
+    "Oxidative Phosphorylation": {
+        "Lehninger": "Bioenergetics: The 'Proton Motive Force' (Δp) and the rotary motor mechanism of the F0F1-ATP Synthase.",
+        "Watson": "The Organelle Genome: Why the ETC subunits are encoded by Mitochondrial DNA and their unique evolutionary origin.",
+        "Wilson_Walker": "Respirometry: Using a Clark-type Oxygen Electrode to measure the 'Oxygen Consumption Rate' (OCR).",
+        "Exam_Focus": "How do uncouplers (like DNP) affect the P/O ratio and heat production?",
+        "Troubleshoot": "Low ATP yield? Check for mitochondrial membrane leakage or inhibition by Cyanide/Azide."
+    },
+    "DNA Sequencing": {
+        "Lehninger": "Nucleotide Chemistry: Why the absence of the 3'-OH group in ddNTPs acts as a 'Chain Terminator'.",
+        "Watson": "The Information Age: How we convert physical DNA molecules into a digital string of A, T, C, and G.",
+        "Wilson_Walker": "NGS Technology: The logic of 'Bridge Amplification' on a flow cell and 'Sequencing by Synthesis'.",
+        "Exam_Focus": "Compare Sanger Sequencing (1 read/capillary) vs Illumina (millions of reads/flow cell).",
+        "Troubleshoot": "Noisy sequence data? Primer dimer formation or poor DNA purity (A260/280 ratio < 1.8)."
     }
 }
 
