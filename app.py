@@ -1,133 +1,120 @@
 import streamlit as st
 import pandas as pd
-from Bio.Seq import Seq
-from Bio.Restriction import Analysis, AllEnzymes
 import os
 
 # --- PAGE CONFIGURATION ---
-st.set_page_config(
-    page_title="Wilson Walker Digital Lab",
-    page_icon="🧬",
-    layout="wide"
-)
+st.set_page_config(page_title="Bio-Tech Smart Textbook", layout="wide")
 
-# --- DATA LOADING (Automatic/Public) ---
+# --- CUSTOM CSS FOR BETTER READING ---
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7f9; }
+    .stButton>button { width: 100%; border-radius: 20px; height: 3em; background-color: #007bff; color: white; }
+    .stMarkdown { font-size: 1.1rem; line-height: 1.6; }
+    .page-box { padding: 20px; background: white; border-radius: 15px; border: 1px solid #ddd; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- DATA LOADING ---
 @st.cache_data
-def load_knowledge_base():
-    file_path = "knowledge.csv"
-    if os.path.exists(file_path):
-        # We use quotechar to handle commas inside the book text
-        return pd.read_csv(file_path, quotechar='"')
-    return None
-
-knowledge_df = load_knowledge_base()
-
-# --- SIDEBAR: NAVIGATION ---
-with st.sidebar:
-    st.title("📚 Book Navigator")
-    
-    if knowledge_df is not None:
-        st.success("✅ Database Online")
-        # Dropdown for all users to see
-        selected_topic = st.selectbox("Search Topic:", knowledge_df["Topic"].unique())
-        
-        # Get data for the selected topic
-        topic_info = knowledge_df[knowledge_df["Topic"] == selected_topic].iloc[0]
-        
-        st.divider()
-        st.markdown(f"**Current Section:** {topic_info['Section']}")
-        
-        # Small sidebar preview of the image
-        if "Image" in topic_info and pd.notna(topic_info['Image']):
-            img_path = str(topic_info['Image'])
-            if os.path.exists(img_path):
-                st.image(img_path)
+def load_data():
+    # Replace 'knowledge_base.csv' with your actual file path
+    if os.path.exists('knowledge_base.csv'):
+        return pd.read_csv('knowledge_base.csv')
     else:
-        st.error("❌ 'knowledge.csv' not found.")
-        st.info("Please ensure your CSV file is in the same folder as this script.")
+        # Dummy data for demonstration
+        return pd.DataFrame({
+            'Section': ['1.1', '1.2', '2.1'],
+            'Topic': ['Structure of DNA', 'PCR Basics', 'Gel Electrophoresis'],
+            'Explanation': [
+                'DNA is a double helix made of nucleotides...',
+                'Polymerase Chain Reaction (PCR) is used to amplify DNA...',
+                'Gel electrophoresis separates DNA fragments by size...'
+            ],
+            'Image': ['dna.jpg', 'pcr.jpg', 'gel.jpg'] # Ensure these exist or use placeholders
+        })
 
-    st.divider()
-    st.caption("PhD Project: Interactive Molecular Education")
+knowledge_df = load_data()
 
-# --- MAIN INTERFACE ---
-st.title("🔬 Wilson & Walker: Interactive Molecular Lab")
+# --- INITIALIZE SESSION STATE FOR PAGE NAVIGATION ---
+if 'page_index' not in st.session_state:
+    st.session_state.page_index = 0
 
-# Create Tabs
-tab0, tab1, tab2, tab3 = st.tabs(["🏠 Home Dashboard", "🧬 Sequence Analyzer", "📦 Vector Selector", "🧪 PCR Optimizer"])
+# --- APP LAYOUT ---
+st.title("🧬 Wilson & Walker: Interactive Lab Guide")
 
-# --- TAB 0: HOME DASHBOARD (Visible to everyone) ---
+tab0, tab1, tab2, tab3 = st.tabs(["📖 Interactive Reader", "🔬 DNA Lab Tools", "🤖 AI Research Assistant", "📊 Data Analysis"])
+
+# --- TAB 0: THE INTERACTIVE READER (OPTION 1) ---
 with tab0:
-    if knowledge_df is not None:
-        st.header(selected_topic)
-        col_text, col_diag = st.columns([1, 1])
-        
-        with col_text:
-            st.subheader(f"Textbook Context: Section {topic_info['Section']}")
-            st.write(topic_info['Explanation'])
-            st.info("💡 Select a different topic in the sidebar to update this page.")
-            
-        with col_diag:
-            if "Image" in topic_info and pd.notna(topic_info['Image']):
-                img_path = str(topic_info['Image'])
-                if os.path.exists(img_path):
-                    st.image(img_path, use_container_width=True, caption=f"Diagram: {selected_topic}")
-                else:
-                    st.warning(f"Image file '{img_path}' missing from server.")
-            else:
-                st.info("No diagram available for this specific topic.")
-    else:
-        st.header("Welcome to the Digital Lab")
-        st.warning("Database is missing. Please upload 'knowledge.csv' to the repository.")
+    st.subheader("Interactive Textbook Interface")
+    
+    # Navigation Row
+    col_prev, col_page, col_next = st.columns([1, 2, 1])
+    
+    if col_prev.button("⬅️ Previous Page"):
+        if st.session_state.page_index > 0:
+            st.session_state.page_index -= 1
+            st.rerun()
 
-# --- TAB 1: SEQUENCE ANALYZER ---
+    with col_page:
+        st.markdown(f"<h3 style='text-align: center;'>Page {st.session_state.page_index + 1} of {len(knowledge_df)}</h3>", unsafe_allow_html=True)
+
+    if col_next.button("Next Page ➡️"):
+        if st.session_state.page_index < len(knowledge_df) - 1:
+            st.session_state.page_index += 1
+            st.rerun()
+
+    # Get current page data
+    current_page = knowledge_df.iloc[st.session_state.page_index]
+
+    # Content Display
+    st.markdown("---")
+    col_text, col_img = st.columns([3, 2])
+
+    with col_text:
+        st.markdown(f"## {current_page['Topic']}")
+        st.markdown(f"**Section:** {current_page['Section']}")
+        st.write(current_page['Explanation'])
+        
+        # Action Button to link with Lab
+        if st.button("Apply this topic in DNA Lab 🔬"):
+            st.info(f"Context for '{current_page['Topic']}' sent to Lab Tools!")
+
+    with col_img:
+        if pd.notna(current_page['Image']) and os.path.exists(str(current_page['Image'])):
+            st.image(current_page['Image'], caption=current_page['Topic'], use_container_width=True)
+        else:
+            # Placeholder for missing images
+            st.info("💡 Image/Diagram placeholder for " + current_page['Topic'])
+
+# --- TAB 1: DNA LAB TOOLS ---
 with tab1:
-    st.header("Restriction Mapping Tool")
-    dna_file = st.file_uploader("Upload DNA Sequence (.txt or .fasta)", type=["txt", "fasta"])
+    st.header("Sequence Analysis Tools")
+    seq = st.text_area("Enter DNA Sequence:", "ATGC...", height=150)
     
-    if dna_file:
-        content = dna_file.getvalue().decode("utf-8")
-        lines = content.splitlines()
-        raw_seq = "".join(lines[1:]) if lines[0].startswith(">") else "".join(lines)
-        clean_seq = "".join(raw_seq.split()).upper()
-        
-        if st.button("Analyze Sequence"):
-            my_seq = Seq(clean_seq)
-            analysis = Analysis(AllEnzymes, my_seq)
-            results = analysis.full()
-            
-            st.metric("Sequence Length", f"{len(my_seq)} bp")
-            cols = st.columns(2)
-            for i, (enz, sites) in enumerate(results.items()):
-                if sites:
-                    with cols[i % 2].expander(f"Enzyme: {enz}"):
-                        st.write(f"Cut positions: {sites}")
-                        st.code(f"Cut site count: {len(sites)}")
+    c1, c2, c3 = st.columns(3)
+    if c1.button("Calculate GC Content"):
+        gc = (seq.count('G') + seq.count('C')) / len(seq) * 100
+        st.metric("GC Content", f"{gc:.2f}%")
+    
+    if c2.button("Find Reverse Complement"):
+        complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+        rev_comp = "".join(complement.get(base, base) for base in reversed(seq))
+        st.code(rev_comp)
 
-# --- TAB 2: VECTOR SELECTOR ---
+# --- TAB 2: AI RESEARCH ASSISTANT ---
 with tab2:
-    st.header("Vector Selection (Table 4.4)")
-    kb_size = st.number_input("Enter DNA Insert Size (kb):", 0.1, 2000.0, 1.0)
-    
-    if kb_size < 10:
-        st.success("**Recommended: Plasmid** (Ref: Section 4.12.1)")
-    elif 10 <= kb_size <= 23:
-        st.success("**Recommended: Bacteriophage λ** (Ref: Section 4.12.2)")
-    elif 100 <= kb_size <= 300:
-        st.success("**Recommended: BAC** (Ref: Section 4.12.4)")
-    else:
-        st.warning("**Recommended: YAC** (Ref: Section 4.12.5)")
+    st.header("Ask the Wilson & Walker AI")
+    user_query = st.text_input("Ask a question about the current section:")
+    if user_query:
+        st.write(f"**AI Response:** Based on Section {current_page['Section']}, the answer is...")
+        st.caption("Note: Integrate OpenAI/Anthropic API here for real responses.")
 
-# --- TAB 3: PCR OPTIMIZER ---
+# --- TAB 3: DATA ANALYSIS ---
 with tab3:
-    st.header("PCR Troubleshooting")
-    problem = st.selectbox("Identify Gel Issue:", ["No Bands", "Smearing", "Non-specific Bands"])
-    
-    advice = {
-        "No Bands": "Lower Annealing Temperature, increase MgCl2, check template.",
-        "Smearing": "Reduce cycle number, check template purity.",
-        "Non-specific Bands": "Increase Annealing Temperature, use Hot Start Taq."
-    }
-    st.error(f"Wilson & Walker Solution: {advice[problem]}")
-
-st.divider()
-st.caption("PhD Research Project | Integrating Digital Tools with Biochemistry Education")
+    st.header("Experimental Data Upload")
+    uploaded_file = st.file_uploader("Upload Lab Results (CSV)", type="csv")
+    if uploaded_file:
+        data = pd.read_csv(uploaded_file)
+        st.line_chart(data)
