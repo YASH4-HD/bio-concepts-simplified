@@ -141,15 +141,78 @@ if knowledge_df is not None:
         if up:
             st.dataframe(pd.read_csv(up))
 
-    # --- TAB 4: HINGLISH HELPER ---
+        # --- TAB 4: HINDI & HINGLISH HELPER ---
     with tabs[4]:
-        st.header("🇮🇳 Hinglish Concept Explainer")
-        to_translate = st.text_area("Paste English sentence here:")
-        if st.button("Translate to Hindi/Hinglish"):
+        st.header("🇮🇳 Language Support Center")
+        st.write("Understand complex Biotech concepts in your preferred language.")
+        
+        # User input
+        to_translate = st.text_area("Paste English sentence or paragraph here:", 
+                                   placeholder="e.g., Restriction enzymes are used to cut DNA at specific locations.",
+                                   height=100)
+        
+        if st.button("Explain Concept"):
             if to_translate:
-                with st.spinner("Translating..."):
-                    translated = GoogleTranslator(source='auto', target='hi').translate(to_translate)
-                    st.success(translated)
+                with st.spinner("Processing..."):
+                    # 1. Get Pure Hindi Translation
+                    hindi_text = GoogleTranslator(source='auto', target='hi').translate(to_translate)
+                    
+                    # 2. Create Hinglish Version 
+                    # (We keep technical English words but use Hindi grammar)
+                    hinglish_text = hindi_text
+                    # Logic: We replace some common Hindi translations back to English for scientific clarity
+                    replacements = {
+                        "प्रतिबंध एंजाइम": "Restriction Enzymes",
+                        "अनुक्रम": "Sequence",
+                        "अणु": "Molecule",
+                        "क्लोनिंग": "Cloning",
+                        "पुनर्संयोजक": "Recombinant"
+                    }
+                    for hi_word, en_word in replacements.items():
+                        hinglish_text = hinglish_text.replace(hi_word, en_word)
+
+                    # --- DISPLAY RESULTS IN COLUMNS ---
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.subheader("📝 Pure Hindi (शुद्ध हिंदी)")
+                        st.markdown(f"""
+                        <div style="background-color: #f0f2f6; padding: 15px; border-radius: 10px; border-left: 5px solid #ff4b4b;">
+                        {hindi_text}
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.caption("Best for Hindi medium exam answers.")
+
+                    with col2:
+                        st.subheader("🗣️ Smart Hinglish")
+                        st.markdown(f"""
+                        <div style="background-color: #e1f5fe; padding: 15px; border-radius: 10px; border-left: 5px solid #03a9f4;">
+                        {hinglish_text}
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.caption("Best for understanding the logic.")
+
+                    # --- 3. KEY TERMS BREAKDOWN ---
+                    st.divider()
+                    st.subheader("🔬 Vocabulary Breakdown (शब्दकोश)")
+                    
+                    # Logic to show definitions of specific biotech terms
+                    terms_found = []
+                    term_definitions = {
+                        "enzyme": "**Enzyme (एंजाइम):** Biological molecules jo reaction fast karte hain.",
+                        "dna": "**DNA:** Hamara genetic blueprint (आनुवंशिक ब्लूप्रिंट).",
+                        "sequence": "**Sequence (अनुक्रम):** DNA mein bases ka order.",
+                        "restriction": "**Restriction:** Limit karna ya specific jagah par rokna.",
+                        "palindromic": "**Palindromic:** Aise words jo aage aur peeche se same read hote hain (जैसे: जहाज)."
+                    }
+
+                    t_cols = st.columns(len(term_definitions))
+                    for i, (term, definition) in enumerate(term_definitions.items()):
+                        if term in to_translate.lower():
+                            st.info(definition)
+            else:
+                st.warning("Please enter some English text first.")
+
 
 else:
     st.error("CSV File not found. Please ensure 'knowledge.csv' is in your GitHub folder.")
