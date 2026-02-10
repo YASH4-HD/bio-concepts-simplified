@@ -289,34 +289,52 @@ with tabs[2]:
     st.header("🧪 DNA Interactive Lab")
     st.info("Transform and prepare your genomic sequences for analysis.")
     
+    # Input Section
     raw_input = st.text_area("Enter Raw DNA (can include spaces/numbers):", "atgc 123 gtatc", key="lab_input")
     
-    col1, col2 = st.columns(2)
+    # Action Buttons
+    c1, c2, c3 = st.columns(3)
     
-    with col1:
+    with c1:
         if st.button("🧹 Clean Sequence"):
-            # Removes numbers, spaces, and makes it uppercase
             cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
-            st.success("Cleaned Sequence:")
+            st.success("Cleaned:")
             st.code(cleaned)
-            st.caption(f"Original Length: {len(raw_input)} | Cleaned Length: {len(cleaned)}")
 
-    with col2:
-        if st.button("🧬 Transcribe to mRNA"):
+    with c2:
+        if st.button("🧬 Transcribe"):
             cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
             mrna = cleaned.replace("T", "U")
-            st.warning("mRNA Strand (Transcription):")
+            st.warning("mRNA:")
             st.code(mrna)
-            st.markdown("*(Note: Thymine (T) is replaced by Uracil (U) in RNA)*")
+
+    with c3:
+        # NEW: Mutation Simulator
+        if st.button("🎲 Random Mutation"):
+            cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+            if cleaned:
+                import random
+                list_seq = list(cleaned)
+                idx = random.randint(0, len(list_seq)-1)
+                old = list_seq[idx]
+                new = random.choice([b for b in "ATGC" if b != old])
+                list_seq[idx] = new
+                st.error(f"Mutated index {idx}: {old} → {new}")
+                st.code("".join(list_seq))
 
     st.divider()
+    
+    # Fixed Quick Reference with proper LaTeX
     st.subheader("Quick Reference")
     st.markdown("""
-    - **A** $\rightarrow$ Adenine
-    - **T** $\rightarrow$ Thymine (DNA) / **U** $\rightarrow$ Uracil (RNA)
-    - **G** $\rightarrow$ Guanine
-    - **C** $\rightarrow$ Cytosine
+    * **A** $\\rightarrow$ Adenine
+    * **T** $\\rightarrow$ Thymine (DNA) / **U** $\\rightarrow$ Uracil (RNA)
+    * **G** $\\rightarrow$ Guanine
+    * **C** $\\rightarrow$ Cytosine
     """)
+    
+    # Added a "Lab Note" for educational value
+    st.info("💡 **Lab Tip:** Use the 'Clean' button before copying your sequence into the Advanced Molecular Suite for a perfect analysis.")
 # =========================
 # TAB 4: INTERNAL SEARCH (Updated)
 # =========================
