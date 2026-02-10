@@ -507,9 +507,9 @@ with tabs[6]:
         c1, c2 = st.columns(2)
         with c1:
             with st.expander("🔗 Complementary Strand", expanded=True):
-                pairs = {"A": "T", "T": "A", "G": "C", "C": "G"}
-                comp = "".join([pairs.get(b, "N") for b in raw_seq])
-                st.code(f"3'- {comp} -5'")
+    pairs = {"A": "T", "T": "A", "G": "C", "C": "G"}
+    comp = "".join([pairs.get(b, "N") for b in raw_seq])
+    st.code(f"Original:    5'- {raw_seq} -3'\nComplement:  3'- {comp} -5'")
         
         with c2:
             with st.expander("🧪 Protein Translation", expanded=True):
