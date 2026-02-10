@@ -27,18 +27,34 @@ def load_knowledge_base():
                 df = pd.read_csv(full_path, encoding='utf-8')
                 df.columns = df.columns.str.strip()
                 return df
-            except: continue
+            except:
+                continue
     return None
 
 knowledge_df = load_knowledge_base()
 
-# --- SESSION STATE ---
+# --- INITIALIZE SESSION STATES ---
 if 'page_index' not in st.session_state:
     st.session_state.page_index = 0
+if 'active_tab' not in st.session_state:
+    st.session_state.active_tab = 0  # 0 is the Reader tab
+
+# Function to handle jumping
+def jump_to_page(index):
+    st.session_state.page_index = index
+    st.session_state.active_tab = 0  # Switch to Reader Tab
+    st.rerun()
 
 # --- APP LOGIC ---
 if knowledge_df is not None:
-    tabs = st.tabs(["📖 Reader", "🔬 DNA Lab", "🔍 Smart Search", "📊 Data", "🇮🇳 Hinglish"])
+    
+    # We use the 'value' parameter to programmatically change tabs
+    tab_list = ["📖 Reader", "🔬 DNA Lab", "🔍 Search", "📊 Data Analysis", "🇮🇳 Hinglish Helper"]
+    tabs = st.tabs(tab_list)
+    
+    # Logic to force the tab selection based on session state
+    # (Note: Streamlit tabs don't have a direct 'active' setter yet, 
+    # so we use a container trick or simply inform the user/rerun logic)
 
     # --- TAB 0: READER ---
     with tabs[0]:
@@ -48,7 +64,7 @@ if knowledge_df is not None:
                 st.session_state.page_index -= 1
                 st.rerun()
         with col_page:
-            st.markdown(f"<h3 style='text-align:center;'>Page {st.session_state.page_index + 1}</h3>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='text-align:center;'>Page {st.session_state.page_index + 1} of {len(knowledge_df)}</h3>", unsafe_allow_html=True)
         if col_next.button("Next ➡️"):
             if st.session_state.page_index < len(knowledge_df) - 1:
                 st.session_state.page_index += 1
@@ -61,9 +77,20 @@ if knowledge_df is not None:
             st.header(current_page.get('Topic', 'Untitled'))
             st.write(current_page.get('Explanation', ''))
         with t2:
-            img_path = str(current_page.get('Image', ''))
-            if img_path and os.path.exists(img_path):
-                st.image(img_path, use_container_width=True)
+            img = str(current_page.get('Image', ''))
+            if img and os.path.exists(img):
+                st.image(img, use_container_width=True)
+            else:
+                st.info("Diagram/Table will appear here")
+
+    # --- TAB 1: DNA LAB ---
+    with tabs[1]:
+        st.header("🔬 DNA Analysis")
+        seq = st.text_area("Paste DNA Sequence:", "ATGC").upper().strip()
+        if st.button("Analyze Sequence"):
+            if seq:
+                gc = (seq.count('G') + seq.count('C')) / len(seq) * 100
+                st.metric("GC Content", f"{gc:.2f}%")
 
     # --- TAB 2: SMART SEARCH (WITH IMAGE OCR) ---
     with tabs[2]:
@@ -108,14 +135,22 @@ if knowledge_df is not None:
                 else:
                     st.warning("No matches found in text or diagrams.")
 
-    # --- TAB 4: HINGLISH ---
+    # --- TAB 3: DATA ANALYSIS ---
+    with tabs[3]:
+        st.header("📊 Lab Data")
+        up = st.file_uploader("Upload CSV", type="csv")
+        if up:
+            st.dataframe(pd.read_csv(up))
+
+    # --- TAB 4: HINGLISH HELPER ---
     with tabs[4]:
-        st.header("🇮🇳 Hinglish Helper")
-        to_translate = st.text_area("Paste complex bio-sentence:")
-        if st.button("Translate"):
+        st.header("🇮🇳 Hinglish Concept Explainer")
+        to_translate = st.text_area("Paste English sentence here:")
+        if st.button("Translate to Hindi/Hinglish"):
             if to_translate:
-                res = GoogleTranslator(source='auto', target='hi').translate(to_translate)
-                st.success(res)
+                with st.spinner("Translating..."):
+                    translated = GoogleTranslator(source='auto', target='hi').translate(to_translate)
+                    st.success(translated)
 
 else:
-    st.error("CSV File not found.")
+    st.error("CSV File not found. Please ensure 'knowledge.csv' is in your GitHub folder.")
