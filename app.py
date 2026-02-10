@@ -463,3 +463,21 @@ with st.sidebar:
         )
     else:
         st.info("Your report is empty. Add topics from the 'Reader' tab.")
+# =========================
+# SIDEBAR: RESEARCH TIP
+# =========================
+with st.sidebar:
+    st.divider()
+    st.markdown("### 💡 Research Tip")
+    tips = [
+        "Always verify GC content for primer design stability.",
+        "Use NCBI BLAST to compare your sequences against known databases.",
+        "CRISPR-Cas9 efficiency depends on the choice of Guide RNA (gRNA).",
+        "Restriction enzymes work best at specific pH and temperature buffers."
+    ]
+    # This picks a different tip based on the day
+    import datetime
+    tip_index = datetime.datetime.now().day % len(tips)
+    st.info(tips[tip_index])
+    
+    st.caption("© 2026 Bio-Verify | Developed for Genomic Research")
