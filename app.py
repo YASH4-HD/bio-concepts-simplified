@@ -86,6 +86,7 @@ with tabs[0]:
     if knowledge_df.empty:
         st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
+        # Navigation Buttons
         col1, col2, col3 = st.columns([1, 2, 1])
         if col1.button("⬅ Previous"):
             st.session_state.page_index = max(0, st.session_state.page_index - 1)
@@ -99,10 +100,11 @@ with tabs[0]:
 
         st.divider()
         
-        # CORRECT ORDER: Define row FIRST, then save to session state
+        # Define current row and save to session state
         row = knowledge_df.iloc[st.session_state.page_index]
         st.session_state['selected_row'] = row
         
+        # Layout: Text on Left, Diagram Spoiler on Right
         left, right = st.columns([2, 1])
         
         with left:
@@ -111,14 +113,15 @@ with tabs[0]:
             with st.expander("📘 Detailed Explanation"):
                 st.write(row.get("Detailed_Explanation", "No extra details available."))
         
-			with right:
-			# --- SPOILER FOR DIAGRAMS ---
-				with st.expander("🖼️ View Topic Diagram", expanded=False):
-				img = str(row.get("Image", ""))
-				if img and os.path.exists(img):
-				st.image(img, use_container_width=True, caption=f"Visual representation of {row.get('Topic')}")
-				else:
-					st.info("No diagram available for this topic.")
+        with right:
+            # --- DIAGRAM SPOILER ---
+            with st.expander("🖼️ View Topic Diagram", expanded=False):
+                img_path = str(row.get("Image", ""))
+                if img_path and os.path.exists(img_path):
+                    st.image(img_path, use_container_width=True, caption=f"Visual: {row.get('Topic')}")
+                else:
+                    st.info("No diagram available.")
+
 
 # =========================
 # TAB 2: 10 POINTS
