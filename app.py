@@ -215,13 +215,14 @@ with tabs[4]:
         st.dataframe(pd.read_csv(file))
 
 # =========================
-# TAB 6: HINGLISH HELPER
+# TAB 6: HINGLISH HELPER (ENHANCED)
 # =========================
 with tabs[5]:
     st.header("🇮🇳 Hindi & Hinglish Helper")
 
     text = st.text_area(
         "Paste English sentence here:",
+        placeholder="e.g., Enzymes that cut DNA at specific palindromic sequences.",
         height=100
     )
 
@@ -230,10 +231,7 @@ with tabs[5]:
             with st.spinner("Processing..."):
 
                 # Pure Hindi
-                hindi = GoogleTranslator(
-                    source="auto",
-                    target="hi"
-                ).translate(text)
+                hindi = GoogleTranslator(source="auto", target="hi").translate(text)
 
                 # Smart Hinglish
                 hinglish = generate_smart_hinglish(text)
@@ -242,25 +240,36 @@ with tabs[5]:
                 with c1:
                     st.subheader("📝 Pure Hindi")
                     st.info(hindi)
+                    # Feature: Suggestion for Hindi medium students
+                    st.caption("💡 Tip: Use these Hindi terms for formal board exams.")
 
                 with c2:
                     st.subheader("🗣 Smart Hinglish (Chat Style)")
                     st.success(hinglish)
+                    # Feature: Copy to clipboard helper
+                    st.button("📋 Copy Hinglish", on_click=lambda: st.write(f"Copied: {hinglish}"), key="copy_btn")
 
-                # ---------- KEY BIOTECH TERMS (RESTORED) ----------
+                # ---------- KEY BIOTECH TERMS & EXAM TIPS ----------
                 st.divider()
-                st.subheader("🔬 Key Biotech Terms")
+                st.subheader("🔬 Key Biotech Terms & Exam Tips")
 
                 terms = {
-                    "taq": "Taq Polymerase: Heat-stable enzyme used in PCR.",
-                    "thermal cycling": "Thermal cycling: Repeated heating and cooling in PCR.",
-                    "dna": "DNA: Genetic material of cells.",
-                    "pcr": "PCR: Technique to amplify DNA."
+                    "taq": "📍 **Taq Polymerase:** Heat-stable enzyme. *Exam Tip: Mention it is isolated from Thermus aquaticus.*",
+                    "thermal cycling": "📍 **Thermal cycling:** Repeated heating/cooling. *Exam Tip: Mention denaturation, annealing, and extension.*",
+                    "dna": "📍 **DNA:** Genetic material. *Exam Tip: Always mention its double-helical structure.*",
+                    "pcr": "📍 **PCR:** DNA amplification. *Exam Tip: Invented by Kary Mullis.*",
+                    "restriction enzyme": "📍 **Restriction Enzyme:** Molecular scissors. *Exam Tip: Mention they are found in bacteria as a defense mechanism.*"
                 }
 
+                found_term = False
                 for k, v in terms.items():
                     if k in text.lower():
                         st.info(v)
+                        found_term = True
+                
+                if not found_term:
+                    st.info("💡 General Tip: Always draw a neat diagram in Biotech answers to score higher!")
 
         else:
             st.warning("Please enter text.")
+
