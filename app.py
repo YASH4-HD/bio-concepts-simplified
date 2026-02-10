@@ -177,7 +177,19 @@ with tabs[0]:
         
         with st.expander("📘 Detailed Analysis & Mechanism"):
             st.write(row.get("Detailed_Explanation", "No extra details available."))
-        
+        if st.button("➕ Add to Research Report"):
+                if 'report_list' not in st.session_state:
+                    st.session_state['report_list'] = []
+                
+                # Check if already added
+                if row['Topic'] not in [item['Topic'] for item in st.session_state['report_list']]:
+                    st.session_state['report_list'].append({
+                        "Topic": row['Topic'],
+                        "Notes": row['Explanation']
+                    })
+                    st.toast(f"Added {row['Topic']} to report!", icon="✅")
+                else:
+                    st.warning("Topic already in report.")
         with right:
             # --- DIAGRAM SPOILER ---
             with st.expander("🖼️ View Topic Diagram", expanded=False):
