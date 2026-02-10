@@ -81,7 +81,7 @@ if "page_index" not in st.session_state:
 # =========================
 # TABS
 # =========================
-tabs = st.tabs([
+
 # --- HERO HEADER ---
 st.markdown("""
     <div style="text-align: left; padding: 10px 0px;">
@@ -102,7 +102,6 @@ tabs = st.tabs([
     "🌐 Global Bio-Search",
     "🇮🇳 Hindi Helper"
 ])
-
 # =========================
 # TAB 1: READER
 # =========================
