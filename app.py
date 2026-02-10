@@ -298,25 +298,42 @@ with tabs[4]:
                 search_results = wikipedia.search(user_input, results=5)
                 if not search_results:
                     st.error("❌ No results found on Wikipedia.")
-                    google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology"
-                    st.link_button(f"🔍 Search Google for '{user_input}'", google_url)
                 else:
                     target_title = search_results[0]
-                    summary = wikipedia.summary(target_title, sentences=3, auto_suggest=False)
                     page = wikipedia.page(target_title, auto_suggest=False)
-                    st.success(f"Top Result: **{page.title}**")
-                    st.info(summary)
+                    summary = wikipedia.summary(target_title, sentences=4, auto_suggest=False)
                     
+                    # --- NEW RESEARCH CARD UI ---
+                    st.markdown(f"""
+                        <div style="background-color: #f0f2f6; padding: 20px; border-radius: 10px; border-left: 5px solid #1e468a;">
+                            <h3 style="margin-top: 0;">📚 Research Snapshot: {page.title}</h3>
+                            <p style="font-size: 1.1rem; line-height: 1.6;">{summary}</p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Metadata Columns
+                    st.write("") 
+                    m1, m2, m3 = st.columns(3)
+                    with m1:
+                        st.info(f"🔗 **Source:** Wikipedia")
+                    with m2:
+                        # Simple logic to count words as a 'complexity' metric
+                        word_count = len(summary.split())
+                        st.info(f"📊 **Complexity:** {word_count} words")
+                    with m3:
+                        st.info(f"📅 **Last Updated:** Today")
+
                     col1, col2 = st.columns(2)
                     with col1:
-                        st.link_button("📖 Open Wikipedia Page", page.url, use_container_width=True)
+                        st.link_button("📖 Read Full Article", page.url, use_container_width=True)
                     with col2:
-                        google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology"
-                        st.link_button(f"🔍 Search Google for '{user_input}'", google_url, use_container_width=True)
-            except Exception:
-                st.error("Could not find a direct match.")
-                google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology"
-                st.link_button(f"🔍 Search Google for '{user_input}'", google_url)
+                        google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology+research+gate"
+                        st.link_button("🔬 Search ResearchGate", google_url, use_container_width=True)
+                        
+            except wikipedia.exceptions.DisambiguationError as e:
+                st.warning(f"Too many matches. Did you mean: {', '.join(e.options[:3])}?")
+            except Exception as e:
+                st.error("Could not fetch detailed summary. Try a more specific term.")
 
     st.divider()
     st.subheader("🔬 Technical Research (NCBI)")
