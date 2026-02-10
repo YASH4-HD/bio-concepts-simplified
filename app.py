@@ -1,99 +1,101 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# =========================
-# PAGE CONFIG
-# =========================
-st.set_page_config(page_title="Bio-Logic Framework", layout="wide")
+# --- PAGE CONFIG ---
+st.set_page_config(page_title="Bio-Logic Framework Pro", layout="wide")
 
-# =========================
-# HEADER
-# =========================
-st.title("📖 Bio-Logic: The Core Principles")
+# --- CUSTOM CSS FOR CLEANER LOOK ---
 st.markdown("""
-*Simplifying the 'Big Three' for Systems Biology*  
-**Lehninger (Biochem) | Watson (Genetics) | Wilson & Walker (Techniques)**
-""")
+    <style>
+    .reportview-container { background: #f0f2f6; }
+    .stMetric { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    </style>
+    """, unsafe_allow_html=True)
 
-# =========================
-# SIDEBAR NAVIGATION
-# =========================
+# --- SIDEBAR: GLOBAL MODES ---
 with st.sidebar:
-    st.header("📚 Select a Book")
-    book = st.radio("Focus Area:", ["Lehninger: Enzyme Logic", "Watson: Gene Switches", "Wilson & Walker: Lab Logic"])
+    st.title("🧠 Logic Engine")
+    mode = st.radio("Select Perspective:", ["🎓 Exam Brain (The 'What')", "🔬 Research Brain (The 'Why/How')"])
     st.divider()
-    st.caption("Developed by Yashwant Nama")
+    complication = st.toggle("⚠️ Introduce Real-World Complications")
+    st.divider()
+    st.info("This tool simulates decision-making logic from Lehninger, Watson, and Wilson & Walker.")
 
-# =========================
-# MODULE 1: LEHNINGER (Enzymes)
-# =========================
-if book == "Lehninger: Enzyme Logic":
-    st.subheader("🧬 Enzyme Kinetics Simplified")
-    col1, col2 = st.columns([1, 2])
+# --- MODULE 1: ENZYME KINETICS (Lehninger) ---
+st.header("🧬 Enzyme Systems: Beyond the Curve")
+
+col1, col2 = st.columns([1, 1.5])
+
+with col1:
+    st.subheader("Experimental Parameters")
+    vmax = st.slider("Theoretical Vmax", 10, 100, 70)
+    km = st.slider("Km (Affinity)", 5, 50, 20)
     
-    with col1:
-        st.write("### The 'Why'")
-        st.write("Lehninger spends chapters on this. The core idea: How fast can a machine work before it gets overwhelmed?")
-        vmax = st.slider("Vmax (Max Speed)", 10, 100, 50)
-        km = st.slider("Km (Affinity - lower is stronger)", 1, 50, 10)
-        s = st.slider("[Substrate] Concentration", 0, 100, 20)
+    inhibition = "None"
+    if complication:
+        inhibition = st.selectbox("Select Inhibition Type", ["None", "Competitive", "Non-Competitive", "Substrate Inhibition"])
 
-    with col2:
-        s_plot = np.linspace(0, 100, 100)
-        v_plot = (vmax * s_plot) / (km + s_plot)
-        current_v = (vmax * s) / (km + s)
-        
-        fig, ax = plt.subplots()
-        ax.plot(s_plot, v_plot, color='#1f77b4', lw=3)
-        ax.axhline(y=vmax, color='r', linestyle='--', label='Saturation')
-        ax.scatter([s], [current_v], color='black', zorder=5)
-        ax.set_xlabel("[Substrate]")
-        ax.set_ylabel("Velocity")
-        st.pyplot(fig)
-        st.success(f"Logic: The enzyme is currently at {int((current_v/vmax)*100)}% capacity.")
-
-# =========================
-# MODULE 2: WATSON (Genetics)
-# =========================
-elif book == "Watson: Gene Switches":
-    st.subheader("🔌 The Genetic Logic Gate")
-    st.write("Watson's 'Molecular Biology of the Gene' is about **Switches**. Let's simulate a Promoter.")
+with col2:
+    s_range = np.linspace(0, 120, 500)
     
+    # Logic for different inhibition modes
+    if inhibition == "Competitive":
+        # Km increases, Vmax stays same
+        v_range = (vmax * s_range) / ((km * 2) + s_range)
+        desc = "Km increased. You need more substrate to reach half-speed."
+    elif inhibition == "Non-Competitive":
+        # Vmax decreases, Km stays same
+        v_range = ((vmax/2) * s_range) / (km + s_range)
+        desc = "Vmax dropped. Adding more substrate won't help."
+    elif inhibition == "Substrate Inhibition":
+        # High substrate actually slows it down
+        v_range = (vmax * s_range) / (km + s_range + (s_range**2 / 10))
+        desc = "Excess substrate is blocking the active site!"
+    else:
+        v_range = (vmax * s_range) / (km + s_range)
+        desc = "Normal Michaelis-Menten behavior."
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.plot(s_range, v_range, color='#1f77b4', lw=3)
+    ax.set_title(f"Kinetics: {inhibition} Mode")
+    ax.set_xlabel("[Substrate]")
+    ax.set_ylabel("Velocity")
+    st.pyplot(fig)
+
+# --- COMPARATIVE LOGIC LAYER ---
+st.divider()
+st.subheader("🧪 Technique Decision Tree (Wilson & Walker)")
+
+goal = st.selectbox("Research Goal:", ["Determine Protein Molecular Weight", "Quantify DNA Concentration"])
+
+if goal == "Determine Protein Molecular Weight":
     c1, c2 = st.columns(2)
+    
     with c1:
-        repressor = st.toggle("Repressor Protein Present")
-        inducer = st.toggle("Inducer (Lactose/IPTG) Present")
+        st.success("✅ **Recommended: SDS-PAGE**")
+        st.write("**Logic:** Denatures proteins and coats them in SDS (negative charge) so they separate strictly by mass.")
         
+        if mode == "🔬 Research Brain (The 'Why/How')":
+            with st.expander("🔍 Troubleshooting: 'My band is in the wrong place'"):
+                st.write("- **Post-translational modifications:** Glycosylation makes bands appear larger/fuzzy.")
+                st.write("- **Incomplete reduction:** Disulfide bonds still intact (forgot β-mercaptoethanol).")
+                st.write("- **Protein Degradation:** Multiple small bands (add protease inhibitors).")
+
     with c2:
-        # Simple Lac Operon Logic
-        if repressor and not inducer:
-            st.error("🚫 Gene OFF: Repressor is blocking the path.")
-        elif repressor and inducer:
-            st.warning("⚡ Gene ON (Leaky): Inducer removed the repressor.")
-        elif not repressor:
-            st.success("✅ Gene ON: Path is clear for Polymerase.")
+        st.error("❌ **Why NOT others?**")
+        st.markdown("""
+        *   **Native PAGE:** Charge and shape interfere. A small round protein might move slower than a large thin one.
+        *   **Size Exclusion Chromatography (SEC):** Good for native state, but lower resolution than a gel.
+        *   **Mass Spec:** High cost. Overkill if you just need to check if your protein is ~50kDa.
+        """)
 
-# =========================
-# MODULE 3: WILSON & WALKER (Lab)
-# =========================
-elif book == "Wilson & Walker: Lab Logic":
-    st.subheader("🧪 The Technique Decision Tree")
-    st.write("Wilson & Walker is about choosing the right tool. Tell the tool your goal:")
-    
-    goal = st.selectbox("What do you want to do?", [
-        "Check Protein Size", 
-        "Measure DNA Concentration", 
-        "Identify an Unknown Metabolite",
-        "See Protein 3D Structure"
-    ])
-    
-    mapping = {
-        "Check Protein Size": "Use **SDS-PAGE**. Logic: Detergent makes all proteins negative, so they move only by weight.",
-        "Measure DNA Concentration": "Use **UV-Vis (260nm)**. Logic: Nitrogenous bases absorb UV light predictably.",
-        "Identify an Unknown Metabolite": "Use **Mass Spectrometry**. Logic: Break it into pieces and measure the weight of the fragments.",
-        "See Protein 3D Structure": "Use **X-Ray Crystallography or Cryo-EM**. Logic: Diffraction patterns reveal atom positions."
-    }
-    st.info(mapping[goal])
+# --- EXAM VS RESEARCH MODE TEXT ---
+st.divider()
+if mode == "🎓 Exam Brain (The 'What')":
+    st.info("**Exam Focus:** Memorize the Michaelis-Menten equation and the definitions of Km/Vmax. Know that Competitive inhibitors increase Km.")
+else:
+    st.warning("**Research Focus:** In the lab, 'Pure' MM kinetics rarely exist. Always look for substrate inhibition, enzyme instability, or buffer interference. The 'Why Not' is as important as the 'Why'.")
 
+# --- FOOTER ---
+st.caption("PhD Portfolio Tool | Integrating Lehninger, Watson, and Wilson & Walker Logic")
