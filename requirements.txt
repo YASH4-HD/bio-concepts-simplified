@@ -6,3 +6,5 @@ biopython
 openai
 googletrans==4.0.0-rc1
 deep-translator
+easyocr
+opencv-python-headless
