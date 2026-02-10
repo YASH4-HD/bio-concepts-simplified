@@ -498,11 +498,11 @@ with tabs[6]:
                 'Count': [raw_seq.count('A'), raw_seq.count('T'), raw_seq.count('G'), raw_seq.count('C')]
             })
             
-            fig = px.bar(df, x='Nucleotide', y='Count', color='Nucleotide',
-                         color_discrete_map={'A':'#FF4B4B', 'T':'#1C83E1', 'G':'#00C78C', 'C':'#FACA2B'},
-                         height=300)
-            st.plotly_chart(fig, use_container_width=True)
-            # ---------------------
+        fig = px.bar(df, x='Nucleotide', y='Count', color='Nucleotide',
+                     color_discrete_map={'A':'#FF4B4B', 'T':'#1C83E1', 'G':'#00C78C', 'C':'#FACA2B'},
+                     height=300)
+        st.plotly_chart(fig, use_container_width=True)
+        # ---------------------
         # 2. Tools (Indented inside the IF)
         c1, c2 = st.columns(2)
         with c1:
