@@ -109,22 +109,24 @@ with tabs[0]:
     if knowledge_df.empty:
         st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
-                        # --- REFINED NAVIGATION ---
+                                # --- COMPACT CENTERED NAVIGATION ---
         st.markdown("""
             <style>
-                /* Make buttons match the height of the progress box */
+                /* Style the buttons to be smaller and sleek */
                 div.stButton > button {
                     background-color: #1e468a !important;
                     color: white !important;
-                    border-radius: 10px !important;
-                    height: 65px !important;
+                    border-radius: 8px !important;
+                    height: 45px !important; /* Smaller height */
                     width: 100% !important;
                     border: none !important;
+                    font-size: 0.9rem !important;
                     font-weight: bold !important;
                 }
-                /* Progress bar color */
+                /* Progress bar styling */
                 .stProgress > div > div > div > div {
                     background-image: linear-gradient(to right, #1e468a , #4facfe);
+                    height: 8px;
                 }
             </style>
         """, unsafe_allow_html=True)
@@ -133,24 +135,25 @@ with tabs[0]:
         progress_value = (st.session_state.page_index + 1) / len(knowledge_df)
         st.progress(progress_value)
 
-        # 2. COMPACT NAVIGATION ROW
-        # Using [1, 3, 1] ratio makes the center box wider and buttons tighter
-        col1, col2, col3 = st.columns([1, 3, 1])
+        # 2. FIVE COLUMNS TO CENTER THE BUTTONS
+        # The [2, 1, 1, 1, 2] creates empty space on the sides to push buttons to middle
+        c1, c2, c3, c4, c5 = st.columns([2, 1, 1.5, 1, 2])
         
-        with col1:
+        with c2:
             if st.button("⬅ PREV"):
                 st.session_state.page_index = max(0, st.session_state.page_index - 1)
                 st.rerun()
         
-        with col2:
+        with c3:
+            # Compact Page Counter
             st.markdown(f"""
-                <div style='text-align:center; background:#f0f2f6; border-radius:10px; padding:10px; height:65px; border: 1px solid #d1d5db;'>
-                    <small style='color:#555; text-transform: uppercase; letter-spacing: 1px;'>Reader Progress</small><br>
-                    <span style='font-weight:bold; font-size:1.3rem; color:#1e468a;'>Page {st.session_state.page_index + 1} of {len(knowledge_df)}</span>
+                <div style='text-align:center; background:#f0f2f6; border-radius:8px; padding:5px; height:45px; border: 1px solid #d1d5db;'>
+                    <small style='color:#555; font-size:0.7rem; text-transform: uppercase;'>Page</small><br>
+                    <span style='font-weight:bold; font-size:1rem; color:#1e468a;'>{st.session_state.page_index + 1} / {len(knowledge_df)}</span>
                 </div>
             """, unsafe_allow_html=True)
         
-        with col3:
+        with c4:
             if st.button("NEXT ➡"):
                 st.session_state.page_index = min(len(knowledge_df) - 1, st.session_state.page_index + 1)
                 st.rerun()
