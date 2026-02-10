@@ -143,12 +143,10 @@ if knowledge_df is not None:
         if up:
             st.dataframe(pd.read_csv(up))
 
-       # --- TAB 4: HINDI & HINGLISH HELPER ---
+          # --- TAB 4: HINDI & HINGLISH HELPER ---
     with tabs[4]:
         st.header("🇮🇳 Language Support Center")
-        st.write("Understand Biotech in Pure Hindi and Natural Hinglish.")
-        
-        to_translate = st.text_area("Paste English text here:", height=100)
+        to_translate = st.text_area("Paste English sentence here:", height=100)
         
         if st.button("Translate & Explain"):
             if to_translate:
@@ -156,59 +154,58 @@ if knowledge_df is not None:
                     # 1. Get Pure Hindi (Devanagari)
                     hindi_text = GoogleTranslator(source='auto', target='hi').translate(to_translate)
                     
-                    # 2. CREATE NATURAL HINGLISH (The Fix)
-                    # We translate the sentence but keep key Bio-terms in English
-                    # This is how Indian students actually talk.
-                    
-                    # Step A: Get a Romanized version of the Hindi translation
-                    hinglish_raw = transliterate(hindi_text, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
-                    
-                    # Step B: Clean up the sounds to be "WhatsApp Style"
-                    replacements = {
-                        "shha": "sh", "aa": "a", "ee": "i", "uu": "u", 
-                        "ai": "e", "om": "on", "shishhta": "special",
-                        "haim": "hain", "mam": "mein", "kramom": "sequences",
-                        "vishi": "special"
+                    # 2. CREATE NATURAL HINGLISH (WhatsApp Style)
+                    # Instead of a library, we use a sound-based transliteration + word recovery
+                    hinglish_roman = transliterate(hindi_text, sanscript.DEVANAGARI, sanscript.ITRANS).lower()
+
+                    # FIX 1: Direct Sound Correction (The "Chat" feel)
+                    corrections = {
+                        "ai": "e", "aa": "a", "shha": "sh", "haim": "hain", 
+                        "mam": "mein", "lie": "liye", "upayoga": "use",
+                        "karake": "karke", "saikala": "cycle", "tharmala": "thermal",
+                        "lakshyom": "targets", "badhane": "increase"
                     }
-                    for old, new in replacements.items():
-                        hinglish_roman = hinglish_raw.replace(old, new)
-                    
-                    # Step C: Force scientific words back to English for clarity
-                    bio_words = ["enzyme", "dna", "palindromic", "sequence", "cut", "ligase", "cloning", "vector"]
-                    for word in bio_words:
-                        if word in to_translate.lower():
-                            # This replaces the weird transliterated word with the clean English word
-                            # e.g., 'emjaima' becomes 'Enzyme'
+                    for old, new in corrections.items():
+                        hinglish_roman = hinglish_roman.replace(old, new)
+
+                    # FIX 2: Bio-Term Recovery
+                    # This ensures words like 'Taq', 'DNA', 'Thermal Cycling' stay in English
+                    original_words = to_translate.split()
+                    for word in original_words:
+                        clean_word = word.lower().strip(".,() ")
+                        if len(clean_word) > 2: # Only fix words longer than 2 letters
+                            # If the transliteration butchered an English word, put the English word back
                             import re
-                            # Simple logic: if the user typed 'Enzymes', keep 'Enzymes'
-                            hinglish_roman = re.sub(r'[a-z]*'+word[1:4]+r'[a-z]*', word, hinglish_roman)
+                            pattern = clean_word[:3] # Look for the first 3 letters
+                            hinglish_roman = re.sub(pattern + r'[a-z]*', clean_word, hinglish_roman)
+
+                    # Final Polish
+                    hinglish_roman = hinglish_roman.replace("dna", "DNA").replace("taq", "Taq")
 
                     # Display Results
                     col1, col2 = st.columns(2)
                     with col1:
-                        st.subheader("📝 Pure Hindi (शुद्ध हिंदी)")
-                        st.markdown(f"<div style='background-color:#f0f2f6; padding:15px; border-radius:10px;'>{hindi_text}</div>", unsafe_allow_html=True)
+                        st.subheader("📝 Pure Hindi")
+                        st.info(hindi_text)
                     
                     with col2:
                         st.subheader("🗣️ Smart Hinglish (Chat Style)")
-                        # Final manual cleanup for common biotech phrases
-                        final_hinglish = hinglish_roman.replace("denae", "DNA").replace("emjaima", "Enzyme")
-                        st.markdown(f"<div style='background-color:#e1f5fe; padding:15px; border-radius:10px; color:#01579b; font-weight:bold;'>{final_hinglish}</div>", unsafe_allow_html=True)
+                        st.success(hinglish_roman)
 
                     # 3. Scientific Vocabulary Definitions
                     st.divider()
-                    st.subheader("🔬 Key Biotech Terms in this context:")
+                    st.subheader("🔬 Key Biotech Terms:")
                     term_definitions = {
-                        "enzyme": "**Enzyme:** Biological catalysts jo reactions ko fast karte hain.",
-                        "dna": "**DNA:** Hamara genetic material jo information carry karta hai.",
-                        "palindromic": "**Palindromic:** Woh sequence jo aage aur peeche se same read ho (e.g., MADAM).",
+                        "taq": "**Taq Polymerase:** Heat-stable enzyme jo PCR mein use hota hai.",
+                        "thermal cycling": "**Thermal Cycling:** Temperature ko bar-bar change karna DNA copy karne ke liye.",
+                        "dna": "**DNA:** Deoxyribonucleic acid (Genetic material)."
                     }
-                    
                     for term, definition in term_definitions.items():
                         if term in to_translate.lower():
                             st.info(definition)
             else:
                 st.warning("Please enter text first.")
+
 
 
 else:
