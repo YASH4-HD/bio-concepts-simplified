@@ -23,7 +23,7 @@ with st.sidebar:
     # This is the fix:
     auto_date = datetime.date.today().strftime("%d %b %Y").upper()
 
-    st.write(f"📅 **{current_date}**")
+    st.sidebar.write(f"📅 **{auto_date}**")
     
     st.divider()
     st.success("✅ Live API Connection: Active")
