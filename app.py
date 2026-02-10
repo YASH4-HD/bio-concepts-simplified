@@ -243,21 +243,24 @@ with tabs[4]:
     s_type = st.selectbox("Select Database", ["pubmed", "gene", "protein"])
     s_query = st.text_input(f"Enter {s_type} keyword for technical data:")
     
-    if st.button("Search NCBI"):
+        if st.button("Search NCBI"):
         if s_query:
             with st.spinner("Searching NCBI..."):
                 try:
                     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
                     res = requests.get(url, params={"db": s_type, "term": s_query, "retmode": "json", "retmax": 5}).json()
                     ids = res.get("esearchresult", {}).get("idlist", [])
-                    # --- REPLACE THE NCBI ID LOOP IN TAB 5 WITH THIS ---
                     if ids:
                         st.caption("🛡️ Verified Technical Records found:")
                         for rid in ids:
-                            # Added a 'Verified' badge emoji and better formatting
                             st.write(f"✅ **Record {rid}:** [View Official NCBI Data](https://www.ncbi.nlm.nih.gov/{s_type}/{rid})")
                     else:
                         st.warning("No technical records found.")
+                except Exception as e:
+                    st.error(f"NCBI Connection Error: {e}")
+        else:
+            st.warning("Please enter a keyword.")
+
 
 # =========================
 # TAB 6: HINDI HELPER
