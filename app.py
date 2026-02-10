@@ -5,6 +5,7 @@ import easyocr
 from deep_translator import GoogleTranslator
 import requests
 import wikipedia
+import datetime
 
 # =========================
 # PAGE CONFIG
@@ -13,14 +14,15 @@ st.set_page_config(
     page_title="Bio-Tech Smart Textbook",
     layout="wide"
 )
-# --- ADD THIS TO THE TOP ---
-import datetime
+
+# --- SIDEBAR ---
 with st.sidebar:
     st.title("🛡️ Bio-Verify 2026")
     st.write(f"**Current Date:** {datetime.date.today().strftime('%d %b %Y')}")
     st.success("✅ Live API Connection: Active")
     st.info("Verified Data Sources: NCBI, Wikipedia, Google")
     st.divider()
+
 # =========================
 # OCR INITIALIZATION
 # =========================
@@ -45,6 +47,7 @@ def get_text_from_image(img_path):
 # =========================
 @st.cache_data
 def load_knowledge_base():
+    # Looking for either filename
     for file in ["knowledge_base.csv", "knowledge.csv"]:
         if os.path.exists(file):
             try:
@@ -54,7 +57,7 @@ def load_knowledge_base():
                 return df
             except Exception:
                 continue
-    return pd.DataFrame(columns=["Topic", "Section", "Explanation", "Image", "Ten_Points"])
+    return pd.DataFrame(columns=["Topic", "Section", "Explanation", "Image", "Ten_Points", "Detailed_Explanation"])
 
 knowledge_df = load_knowledge_base()
 
@@ -95,7 +98,11 @@ with tabs[0]:
             st.rerun()
 
         st.divider()
+        
+        # CORRECT ORDER: Define row FIRST, then save to session state
+        row = knowledge_df.iloc[st.session_state.page_index]
         st.session_state['selected_row'] = row
+        
         left, right = st.columns([2, 1])
         
         with left:
@@ -112,39 +119,38 @@ with tabs[0]:
                 st.info("No diagram available.")
 
 # =========================
-# TAB 2: 10 POINTS (FIXED DATA READING)
+# TAB 2: 10 POINTS
 # =========================
 with tabs[1]:
     st.header("🧠 10 Key Exam Points")
     
-    # Check if a topic was saved in Session State
     if 'selected_row' in st.session_state:
-        row = st.session_state['selected_row']
-        pts = row.get('10_Points', 'No points available for this topic.')
+        current_row = st.session_state['selected_row']
+        # Try both common column names for points
+        pts = current_row.get('Ten_Points') or current_row.get('10_Points') or "No points available for this topic."
         
-        # Display the points
-        st.info(f"Summary for: **{row['Topic']}**")
+        st.info(f"Summary for: **{current_row.get('Topic', 'Selected Topic')}**")
         st.write(pts)
         
-        # --- DOWNLOAD AND CITATION SECTION ---
         st.divider()
         col_cite, col_dl = st.columns(2)
         
         with col_cite:
             if st.button("📋 Generate Citation"):
-                citation = f"Source: Bio-Verify 2026, Topic: {row['Topic']}, Date: {datetime.date.today()}"
+                citation = f"Source: Bio-Verify 2026, Topic: {current_row.get('Topic')}, Date: {datetime.date.today()}"
                 st.code(citation, language="text")
         
         with col_dl:
             st.download_button(
                 label="📥 Download Study Notes",
                 data=str(pts),
-                file_name=f"{row['Topic']}_Notes.txt",
+                file_name=f"{current_row.get('Topic', 'Bio_Notes')}_Notes.txt",
                 mime="text/plain",
                 use_container_width=True
             )
     else:
         st.warning("⚠️ Please go to the 'Reader' tab and select a topic first!")
+
 # =========================
 # TAB 3: DNA LAB
 # =========================
@@ -194,57 +200,34 @@ with tabs[4]:
     if user_input:
         with st.spinner(f"Searching for '{user_input}'..."):
             try:
-                # 1. Get the most relevant Wikipedia title
                 search_results = wikipedia.search(user_input, results=5)
-                
                 if not search_results:
                     st.error("❌ No results found on Wikipedia.")
-                    # Fallback Google Button if Wikipedia fails
                     google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology"
                     st.link_button(f"🔍 Search Google for '{user_input}'", google_url)
                 else:
                     target_title = search_results[0]
                     summary = wikipedia.summary(target_title, sentences=3, auto_suggest=False)
                     page = wikipedia.page(target_title, auto_suggest=False)
-                    
                     st.success(f"Top Result: **{page.title}**")
                     st.info(summary)
                     
-                    # 2. Action Buttons (THE PRO-TIP IS HERE)
                     col1, col2 = st.columns(2)
                     with col1:
                         st.link_button("📖 Open Wikipedia Page", page.url, use_container_width=True)
                     with col2:
-                        # Create the Google URL
                         google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology"
-                        # PLACE THE PRO-TIP BUTTON HERE:
                         st.link_button(f"🔍 Search Google for '{user_input}'", google_url, use_container_width=True)
-                        
-            except wikipedia.exceptions.DisambiguationError as e:
-                # Handle multiple meanings
-                selection = e.options[0]
-                for opt in e.options:
-                    if any(bio in opt.lower() for bio in ['biology', 'gene', 'acid', 'cell']):
-                        selection = opt
-                        break
-                summary = wikipedia.summary(selection, sentences=3, auto_suggest=False)
-                st.warning(f"Showing Biology result: **{selection}**")
-                st.info(summary)
-                
             except Exception:
                 st.error("Could not find a direct match.")
                 google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology"
                 st.link_button(f"🔍 Search Google for '{user_input}'", google_url)
 
-
     st.divider()
-
-# NCBI Section
     st.subheader("🔬 Technical Research (NCBI)")
     s_type = st.selectbox("Select Database", ["pubmed", "gene", "protein"])
     s_query = st.text_input(f"Enter {s_type} keyword for technical data:")
     
-    # Line 246 starts here - NO EXTRA INDENT
     if st.button("Search NCBI"):
         if s_query:
             with st.spinner("Searching NCBI..."):
@@ -263,7 +246,6 @@ with tabs[4]:
         else:
             st.warning("Please enter a keyword.")
 
-
 # =========================
 # TAB 6: HINDI HELPER
 # =========================
@@ -272,5 +254,8 @@ with tabs[5]:
     txt = st.text_area("Paste English text to translate to Hindi:")
     if st.button("Translate"):
         if txt.strip():
-            translated = GoogleTranslator(source="auto", target="hi").translate(txt)
-            st.info(translated)
+            try:
+                translated = GoogleTranslator(source="auto", target="hi").translate(txt)
+                st.info(translated)
+            except Exception as e:
+                st.error("Translation Error.")
