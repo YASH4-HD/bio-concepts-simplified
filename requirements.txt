@@ -11,3 +11,4 @@ opencv-python-headless
 indic-transliteration
 google-generativeai
 wikipedia
+plotly
