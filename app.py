@@ -109,10 +109,10 @@ with tabs[0]:
     if knowledge_df.empty:
         st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
-                                               # --- TARGETED NAVIGATION CSS ---
+                                                       # --- TIGHT LEFT NAVIGATION ---
         st.markdown("""
             <style>
-                /* ONLY target buttons inside the navigation columns using a specific container */
+                /* Target buttons inside columns */
                 [data-testid="stHorizontalBlock"] div.stButton > button {
                     background-color: #1e468a !important;
                     color: white !important;
@@ -121,13 +121,8 @@ with tabs[0]:
                     border: none !important;
                     font-size: 0.8rem !important;
                     font-weight: bold !important;
-                    width: 100% !important; /* Let the column control the width */
-                }
-                
-                /* Keep the progress bar clean */
-                .stProgress > div > div > div > div {
-                    background-image: linear-gradient(to right, #1e468a , #4facfe);
-                    height: 6px;
+                    width: 100% !important;
+                    padding: 0px !important;
                 }
             </style>
         """, unsafe_allow_html=True)
@@ -136,9 +131,9 @@ with tabs[0]:
         progress_value = (st.session_state.page_index + 1) / len(knowledge_df)
         st.progress(progress_value)
 
-        # 2. LEFT-ALIGNED COLUMNS
-        # [1, 1.5, 1, 5] makes the first 3 columns small and the last one huge/empty
-        c1, c2, c3, c4 = st.columns([1, 1.8, 1, 5])
+        # 2. TIGHT COLUMNS
+        # gap="small" removes that big white space you circled
+        c1, c2, c3, c4 = st.columns([0.8, 1.2, 0.8, 4], gap="small")
         
         with c1:
             if st.button("⬅ PREV"):
@@ -146,10 +141,9 @@ with tabs[0]:
                 st.rerun()
         
         with c2:
-            # Wider box to prevent text overflow
             st.markdown(f"""
-                <div style='text-align:center; background:#f0f2f6; border-radius:8px; padding:4px; height:40px; border: 1px solid #d1d5db; min-width: 120px;'>
-                    <small style='color:#555; font-size:0.65rem; text-transform: uppercase; display:block; line-height:1;'>PAGE</small>
+                <div style='text-align:center; background:#f0f2f6; border-radius:8px; padding:4px; height:40px; border: 1px solid #d1d5db;'>
+                    <small style='color:#555; font-size:0.6rem; text-transform: uppercase; display:block; line-height:1.1;'>PAGE</small>
                     <span style='font-weight:bold; font-size:0.9rem; color:#1e468a;'>{st.session_state.page_index + 1} / {len(knowledge_df)}</span>
                 </div>
             """, unsafe_allow_html=True)
