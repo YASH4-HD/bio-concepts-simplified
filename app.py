@@ -168,7 +168,7 @@ with tabs[3]:
                     if "Diagram" in found_in:
                         st.info("📸 Term found inside diagram/table")
 
-                    if st.button(f"Go to Page {i+1}", key=f"jump_{i}"):
+                    if st.button(f"Check Page {i+1}", key=f"jump_{i}"):
                         st.session_state.page_index = i
                         st.rerun()
 
