@@ -3,9 +3,6 @@ import pandas as pd
 import os
 from deep_translator import GoogleTranslator
 import easyocr
-import re
-from indic_transliteration import sanscript
-from indic_transliteration.sanscript import transliterate
 
 # =========================
 # PAGE CONFIG
