@@ -1013,18 +1013,17 @@ with tabs[9]:
         st.markdown("✍️ **Researcher Observations**")
         st.text_area("Observations Input", label_visibility="collapsed", 
                      placeholder="Enter findings here...", height=80, key="lab_notes")
-
     with col_right:
-    # Lab Profile Box
-    st.markdown("""
-    <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 15px; border: 1px solid #00d4ff; margin-bottom: 15px;">
-        <h4 style="margin:0; color: #00d4ff; font-size: 1.1rem;">Lab Profile: NCBS</h4>
-        <p style="font-size: 0.8rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
-    </div>
-    """, unsafe_allow_html=True)
+        # Lab Profile Box
+        st.markdown("""
+        <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 15px; border: 1px solid #00d4ff; margin-bottom: 15px;">
+            <h4 style="margin:0; color: #00d4ff; font-size: 1.1rem;">Lab Profile: NCBS</h4>
+            <p style="font-size: 0.8rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    # THREE TABS for Analysis
-    analysis_tab1, analysis_tab2, analysis_tab3 = st.tabs(["📊 FRET", "⚡ Ablation", "🔬 Image Tools"])
+        # THREE TABS for Analysis
+        analysis_tab1, analysis_tab2, analysis_tab3 = st.tabs(["📊 FRET", "⚡ Ablation", "🔬 Image Tools"])
     
     with analysis_tab1:
         st.write("**Molecular Strain (FRET)**")
