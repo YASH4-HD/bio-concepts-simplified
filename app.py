@@ -716,63 +716,62 @@ with tabs[7]:
         else:
             st.success("✅ Balanced GC Content: Normal distribution.") 
 # ==========================================
-# TAB 8: 🔬 3D STRUCTURE VIEWER
+# TAB 8: 🔬 3D STRUCTURE VIEWER (Protein GPT Style)
 # ==========================================
 with tabs[8]:
     from stmol import showmol
     import py3Dmol
+    import os
 
-   # 1. Top Navigation Bar
-    st.markdown("<h3 style='text-align: center; color: #00ff88;'>Protein GPT 3D Viewer</h3>", unsafe_allow_html=True)
+    # 1. Define the rendering function correctly
+    def render_protein(pdb_id, style_type, color_type):
+        view = py3Dmol.view(query=f'pdb:{pdb_id}')
+        view.setStyle({style_type: {'color': color_type}})
+        view.zoomTo()
+        view.spin(True)
+        showmol(view, height=500, width=500)
+
+    # 2. Top Navigation Bar
+    st.markdown("<h3 style='text-align: center; color: #00ff88;'>🧬 Protein GPT 3D Viewer</h3>", unsafe_allow_html=True)
     st.caption("MCP PROTOCOL • PDB SEARCH • 3D VIEWER • STRUCTURE EDITING • PROPKA")
     
-    # 2. Control Row (Style & Color)
-    col_ctrl1, col_ctrl2 = st.columns(2)
+    # 3. Control Row (PDB ID, Style & Color)
+    col_input, col_ctrl1, col_ctrl2 = st.columns([2, 1, 1])
+    with col_input:
+        target_pdb = st.text_input("Enter PDB ID", value="6M8F", key="pdb_search_8")
     with col_ctrl1:
-        style = st.selectbox("Style", ["cartoon", "stick", "sphere", "line"], index=0)
+        style_choice = st.selectbox("Style", ["cartoon", "stick", "sphere", "line"], index=0)
     with col_ctrl2:
-        color_scheme = st.selectbox("Color Scheme", ["spectrum", "chain", "element", "residue"], index=0)
+        color_choice = st.selectbox("Color Scheme", ["spectrum", "chain", "element", "residue"], index=0)
 
-    # 3. Main Viewer Area
+    # 4. Main Viewer Area
     col_main, col_side = st.columns([2, 1])
     
     with col_main:
-        # Check if we have a PDB file loaded
-        target_pdb = st.session_state.get('current_pdb', '6M8F') # Default to 6M8F
-        
-        # Here we call your existing 3Dmol function
-        # Make sure to pass the 'style' and 'color_scheme' variables to it
-       def show_3d_structure(pdb_id, style='cartoon', color='spectrum'):
-    # 1. Initialize the viewer
-    view = py3Dmol.view(query=f'pdb:{pdb_id}')
-    
-    # 2. THIS IS THE LINE TO ADD/UPDATE:
-    # It uses the variables from the dropdowns
-    view.setStyle({style: {'color': color}})
-    
-    view.zoomTo()
-    view.spin(True) # Optional: makes it spin like your reference
-    
-    # 3. Render in Streamlit
-    showmol(view, height=500, width=800)
+        # Call the function to show the protein
+        if target_pdb:
+            render_protein(target_pdb, style_choice, color_choice)
         
         st.caption(f"Showing: {target_pdb}_MODIFIED")
-        st.button(f"📥 Download {target_pdb}_CLEAN.pdb", use_container_width=True)
+        if st.button(f"📥 Download {target_pdb}_CLEAN.pdb", use_container_width=True):
+            st.write("Preparing download...")
 
     with col_side:
         st.subheader("Structure Log")
         # Chat-like interface for protein commands
         st.info("🤖 **Assistant:** I've detected 15 sulfate ions. Should I remove them?")
-        if st.button("Remove SO4"):
+        if st.button("Remove SO4", use_container_width=True):
             st.success("Sulfate ions removed!")
         
         st.markdown("---")
         st.write("**VERSIONS**")
         st.code("Step 1: Original PDB\nStep 2: Removed Water\nStep 3: Applied Spectrum", language="text")
 
-    # 4. The Bottom Chat Bar (The one you liked)
+    # 5. The Bottom Chat Bar
     st.markdown("---")
-    chat_query = st.text_input("Ask about protein structures...", placeholder="e.g. 'Remove all water molecules' or 'Highlight active site'")
+    chat_query = st.text_input("Ask about protein structures...", placeholder="e.g. 'Remove all water molecules' or 'Highlight active site'", key="protein_chat")
+    if chat_query:
+        st.write(f"🤖 Processing command: *{chat_query}*...")
 # =========================
 # SIDEBAR: RESEARCH REPORT
 # =========================
