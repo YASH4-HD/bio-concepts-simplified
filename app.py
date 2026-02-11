@@ -789,19 +789,19 @@ with tabs[8]:
         with b3:
             if st.button("🧪 Predict Properties", use_container_width=True, key="nexus_btn3"):
                 st.info("MW: 64.5 kDa | pI: 6.8")
-           with col_side:
-        # 1. DATABASE LOGIC
-        pdb_data = {
+        with col_side:
+            # 1. DATABASE LOGIC
+            pdb_data = {
             "1A8M": {"chains": "4", "res": "574", "type": "Hemoglobin", "helix": 72, "sheet": 12},
             "7DHL": {"chains": "3", "res": "3726", "type": "Spike Protein", "helix": 25, "sheet": 45},
             "1BNA": {"chains": "2", "res": "24", "type": "DNA Helix", "helix": 0, "sheet": 0}
-        }
-        stats = pdb_data.get(target_pdb.upper(), {"chains": "1", "res": "Unknown", "type": "Protein", "helix": 50, "sheet": 20})
-
-        # 2. START THE GLOWING CONTAINER
-        st.markdown("""
+            }
+            stats = pdb_data.get(target_pdb.upper(), {"chains": "1", "res": "Unknown", "type": "Protein", "helix": 50, "sheet": 20})
+            
+            # 2. START THE GLOWING CONTAINER
+            st.markdown("""
             <div style='background-color: #0e1117; padding: 20px; border-radius: 15px; border: 2px solid #00d4ff; box-shadow: 0px 0px 15px #00d4ff; color: white;'>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
         st.subheader("📡 Nexus Intelligence")
         st.caption(f"Classification: {stats['type']}")
