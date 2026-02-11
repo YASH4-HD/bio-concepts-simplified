@@ -749,6 +749,8 @@ with tabs[8]:
     try:
         from stmol import showmol
         import py3Dmol
+        import streamlit.components.v1 as components # Add this line
+
 
         # 1. NEXUS STYLING ENGINE
         st.markdown("""
