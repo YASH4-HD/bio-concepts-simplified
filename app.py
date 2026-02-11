@@ -9,82 +9,72 @@ import datetime
 import plotly.express as px
 import datetime
 import pytz
-# ==========================================
-# 1. MODERN DESIGN & ANIMATION (EXIFA STYLE)
-# ==========================================
-st.set_page_config(page_title="Bio-Tech Smart Textbook", layout="wide")
-
-def inject_modern_design():
-    st.markdown("""
-    <style>
-    /* Dark Background with subtle gradient */
-    .stApp {
-        background: linear-gradient(180deg, #0e1117 0%, #10141b 100%);
-        color: #ffffff;
-    }
-    
-    /* Floating Bio-Particles Background */
-    .particle {
-      color: rgba(0, 255, 255, 0.15); /* Very subtle cyan */
-      font-size: 22px;
-      position: fixed;
-      top: -10%;
-      z-index: 0;
-      user-select: none;
-      pointer-events: none;
-      animation: fall 12s linear infinite, shake 3s ease-in-out infinite;
-    }
-    @keyframes fall { 0% { top: -10%; } 100% { top: 100%; } }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(40px); } }
-    
-    .p1 { left: 10%; animation-delay: 0s; }
-    .p2 { left: 30%; animation-delay: 4s; }
-    .p3 { left: 50%; animation-delay: 2s; }
-    .p4 { left: 70%; animation-delay: 7s; }
-    .p5 { left: 85%; animation-delay: 1s; }
-
-    /* Glassmorphism Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(15px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    /* Modern Bio-Card for Content */
-    .bio-card {
-        background: rgba(255, 255, 255, 0.04);
-        padding: 25px;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 20px;
-    }
-
-    /* Style for the DNA Tags */
-    .bio-tag {
-        background-color: rgba(1, 87, 155, 0.3);
-        color: #81d4fa;
-        padding: 4px 12px;
-        border-radius: 15px;
-        margin-right: 8px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        border: 1px solid #01579b;
-    }
-    </style>
-    
-    <div aria-hidden="true">
-      <div class="particle p1">🧬</div>
-      <div class="particle p2">●</div>
-      <div class="particle p3">○</div>
-      <div class="particle p4">🧬</div>
-      <div class="particle p5">●</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-inject_modern_design()
+# =========================
+# PAGE CONFIG
+# =========================
+st.set_page_config(
+    page_title="Bio-Tech Smart Textbook",
+    layout="wide"
+)
 
 # =========================
-# 2. OCR & DATA INITIALIZATION
+# SIDEBAR: BIO-VERIFY PANEL
+# =========================
+with st.sidebar:
+
+    # Title
+    st.title("🛡️ Bio-Verify 2026")
+
+    # --- INDIA TIME (IST) ---
+    ist = pytz.timezone("Asia/Kolkata")
+    today_dt = datetime.datetime.now(ist)
+    today_date = today_dt.date()
+
+    # Display current date
+    today_auto = today_dt.strftime("%d %b %Y")
+    st.subheader(f"📅 {today_auto.upper()}")
+
+    st.divider()
+
+    # --- EXAM DATES ---
+    EXAMS = {
+        "CSIR NET JUNE": datetime.date(2026, 6, 1),
+        "GATE 2027": datetime.date(2027, 2, 2),
+    }
+
+    st.subheader("📆 Exam Countdown")
+
+    for exam, exam_date in EXAMS.items():
+        days_left = (exam_date - today_date).days
+
+        if days_left > 0:
+            st.info(f"**{exam}**: {days_left} days left")
+        elif days_left == 0:
+            st.warning(f"**{exam}**: Exam Today!")
+        else:
+            st.error(f"**{exam}**: Exam completed")
+
+    st.divider()
+
+    # --- STATUS BADGES ---
+    st.success("✅ Live API Connection: Active")
+    st.info("Verified Data Sources: NCBI, Wikipedia, Google")
+
+    st.divider()
+ # --- PROFILE CARD (Image 3 Style) ---
+    st.markdown("""
+        <div style="background-color: #1e468a; padding: 20px; border-radius: 15px; text-align: center; color: white;">
+            <h3 style="margin: 0; color: white;">Yashwant Nama</h3>
+            <p style="margin: 5px 0; font-size: 0.9rem; opacity: 0.8;">Developer & Researcher</p>
+            <p style="font-weight: bold; font-size: 1rem;">Bio-Informatics & Genetics</p>
+            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">🧬 Genomics</span>
+                <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;">🕸️ Networks</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+# =========================
+# OCR INITIALIZATION
 # =========================
 @st.cache_resource
 def load_ocr():
@@ -98,212 +88,451 @@ def get_text_from_image(img_path):
         try:
             text = reader.readtext(img_path, detail=0)
             return " ".join(text).lower()
-        except: return ""
+        except Exception:
+            return ""
     return ""
 
+# =========================
+# LOAD KNOWLEDGE BASE
+# =========================
 @st.cache_data
 def load_knowledge_base():
+    # Looking for either filename
     for file in ["knowledge_base.csv", "knowledge.csv"]:
         if os.path.exists(file):
             try:
                 df = pd.read_csv(file)
                 df.columns = df.columns.str.strip()
-                return df.dropna(how='all')
-            except: continue
+                df = df.dropna(how='all')
+                return df
+            except Exception:
+                continue
     return pd.DataFrame(columns=["Topic", "Section", "Explanation", "Image", "Ten_Points", "Detailed_Explanation"])
 
 knowledge_df = load_knowledge_base()
 
+# =========================
+# SESSION STATE
+# =========================
 if "page_index" not in st.session_state:
     st.session_state.page_index = 0
 
 # =========================
-# 3. SIDEBAR: BIO-VERIFY & REPORT
+# TABS
 # =========================
-with st.sidebar:
-    st.title("🛡️ Bio-Verify 2026")
-    ist = pytz.timezone("Asia/Kolkata")
-    today_dt = datetime.datetime.now(ist)
-    st.subheader(f"📅 {today_dt.strftime('%d %b %Y').upper()}")
-    
-    st.divider()
-    EXAMS = {"CSIR NET JUNE": datetime.date(2026, 6, 1), "GATE 2027": datetime.date(2027, 2, 2)}
-    for exam, exam_date in EXAMS.items():
-        days_left = (exam_date - today_dt.date()).days
-        if days_left > 0: st.info(f"**{exam}**: {days_left} days left")
-    
-    st.divider()
-    st.success("✅ API: Active | Verified Sources")
-    
-    # Profile Card
-    st.markdown("""
-        <div style="background: rgba(30, 70, 138, 0.4); padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #1e468a;">
-            <h3 style="margin:0; color:white;">Yashwant Nama</h3>
-            <p style="font-size:0.9rem; opacity:0.8;">Developer & Researcher</p>
-            <div style="display: flex; justify-content: center; gap: 5px; margin-top: 10px;">
-                <span style="background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 10px; font-size:0.7rem;">🧬 Genomics</span>
-                <span style="background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 10px; font-size:0.7rem;">🕸️ Networks</span>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
 
-    st.divider()
-    st.header("📋 My Research Report")
-    if 'report_list' in st.session_state and st.session_state['report_list']:
-        for idx, item in enumerate(st.session_state['report_list']):
-            st.write(f"{idx+1}. {item['Topic']}")
-        
-        full_report = "BIO-RESEARCH REPORT\n" + "="*20 + "\n"
-        for item in st.session_state['report_list']:
-            full_report += f"TOPIC: {item['Topic']}\n{item['Notes']}\n\n"
-            
-        st.download_button("📥 Download Report", full_report, "Bio_Report.txt", use_container_width=True)
-        if st.button("🗑️ Clear Report"):
-            st.session_state.report_list = []; st.rerun()
-    else:
-        st.info("Report is empty.")
+# --- HERO HEADER ---
+st.markdown("""
+    <div style="text-align: left; padding: 10px 0px;">
+        <h1 style="margin-bottom: 0;">🧬 Bio-Tech Smart Textbook</h1>
+        <p style="font-style: italic; color: #555; font-size: 1.1rem;">
+            This resource guide serves as a foundational reference for computational hypothesis generation, 
+            validation, and extension of biotechnology mechanisms.
+        </p>
+    </div>
+""", unsafe_allow_html=True)
 
+# --- TABS DEFINITION ---
+tabs = st.tabs([
+    "📖 Reader", 
+    "🧠 10 Points", 
+    "🧪 DNA Interactive Lab", 
+    "🔍 Search", 
+    "🌐 Global Bio-Search", 
+    "🇮🇳 Hindi Helper", 
+    "🧬 Advanced Molecular Suite"  # <--- Make sure this 7th one is here!
+])
 # =========================
-# 4. MAIN TABS LOGIC
+# TAB 1: READER
 # =========================
-st.markdown('<h1 style="color: #00d4ff; margin-bottom:0;">🧬 Bio-Tech Smart Textbook</h1>', unsafe_allow_html=True)
-st.markdown('<p style="font-style: italic; opacity: 0.7;">Foundational reference for computational hypothesis generation.</p>', unsafe_allow_html=True)
-
-tabs = st.tabs(["📖 Reader", "🧠 10 Points", "🧪 DNA Lab", "🔍 Search", "🌐 Global", "🇮🇳 Hindi", "🧬 Advanced Suite"])
-
-# --- TAB 1: READER ---
 with tabs[0]:
     if knowledge_df.empty:
-        st.warning("Knowledge base empty.")
+        st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
-        st.progress((st.session_state.page_index + 1) / len(knowledge_df))
-        c1, c2, c3, _ = st.columns([0.6, 0.8, 0.6, 4])
-        if c1.button("⬅ PREV", disabled=st.session_state.page_index == 0):
-            st.session_state.page_index -= 1; st.rerun()
-        with c2: st.markdown(f"<div style='text-align:center; padding-top:5px;'><b>{st.session_state.page_index+1} / {len(knowledge_df)}</b></div>", unsafe_allow_html=True)
-        if c3.button("NEXT ➡", disabled=st.session_state.page_index == len(knowledge_df)-1):
-            st.session_state.page_index += 1; st.rerun()
+                                                                                                # 1. TOP PROGRESS BAR
+        progress_value = (st.session_state.page_index + 1) / len(knowledge_df)
+        st.progress(progress_value)
 
+        # 2. SIMPLE TOOLBAR (Using standard columns, no complex CSS)
+        # The [0.5, 0.8, 0.5, 4] ratio keeps everything small and to the left
+        c1, c2, c3, c4 = st.columns([0.6, 0.8, 0.6, 4])
+        
+        with c1:
+            # Standard button - works every time
+            if st.button("⬅ PREV", use_container_width=True, disabled=st.session_state.page_index == 0):
+                st.session_state.page_index = max(0, st.session_state.page_index - 1)
+                st.rerun()
+        
+        with c2:
+            # Use a simple st.info or st.code for a boxed look without complex CSS
+            current_pg = st.session_state.page_index + 1
+            total_pg = len(knowledge_df)
+            st.markdown(f"""
+                <div style="border: 1px solid #ddd; border-radius: 5px; padding: 2px; text-align: center; background-color: #f9f9f9; line-height: 1.2;">
+                    <p style="margin: 0; font-size: 0.7rem; color: gray;">PAGE</p>
+                    <p style="margin: 0; font-weight: bold; font-size: 1rem;">{current_pg} / {total_pg}</p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with c3:
+            if st.button("NEXT ➡", use_container_width=True, disabled=st.session_state.page_index == len(knowledge_df) - 1):
+                st.session_state.page_index = min(len(knowledge_df) - 1, st.session_state.page_index + 1)
+                st.rerun()
+
+        st.divider()
+
+
+
+
+
+        
+        # Define current row and save to session state
         row = knowledge_df.iloc[st.session_state.page_index]
         st.session_state['selected_row'] = row
         
-        st.markdown('<div class="bio-card">', unsafe_allow_html=True)
+        # Layout: Text on Left, Diagram Spoiler on Right
         left, right = st.columns([2, 1])
-        with left:
-            st.header(row.get("Topic", "Untitled"))
-            # Auto-Tags
-            bio_keywords = ["DNA", "RNA", "Protein", "CRISPR", "Gene", "Cell", "Enzyme"]
-            found_tags = [t for t in bio_keywords if t.lower() in str(row.get("Explanation")).lower()]
-            if found_tags:
-                tag_html = "".join([f'<span class="bio-tag">🧬 {t}</span>' for t in found_tags])
-                st.markdown(tag_html, unsafe_allow_html=True)
-                st.write("")
-            
-            st.write(row.get("Explanation", ""))
-            with st.expander("📘 Detailed Analysis"):
-                st.write(row.get("Detailed_Explanation", "No extra details."))
-            if st.button("➕ Add to Report"):
-                if 'report_list' not in st.session_state: st.session_state['report_list'] = []
-                st.session_state['report_list'].append({"Topic": row['Topic'], "Notes": row['Explanation']})
-                st.toast("Added!")
+        
+    with left:
+        st.header(row.get("Topic", "Untitled"))
+        
+        # --- NEW: AUTO-TAG GENERATOR ---
+        # This logic simulates NLP entity extraction
+        bio_keywords = ["DNA", "RNA", "Protein", "CRISPR", "Gene", "Cell", "Enzyme", "Mutation", "Pathway", "Genomics"]
+        text_content = str(row.get("Explanation", "")) + " " + str(row.get("Detailed_Explanation", ""))
+        
+        # Find which keywords are in the text
+        found_tags = [tag for tag in bio_keywords if tag.lower() in text_content.lower()]
+        
+        if found_tags:
+            tag_html = ""
+            for t in found_tags:
+                tag_html += f'<span style="background-color:#e1f5fe; color:#01579b; padding:4px 10px; border-radius:15px; margin-right:5px; font-size:0.8rem; font-weight:bold; border:1px solid #01579b;">🧬 {t}</span>'
+            st.markdown(tag_html, unsafe_allow_html=True)
+            st.write("") # Spacer
+        
+        # --- END TAGS ---
+    
+        st.write(row.get("Explanation", "No explanation available."))
+        
+        with st.expander("📘 Detailed Analysis & Mechanism"):
+            st.write(row.get("Detailed_Explanation", "No extra details available."))
+        if st.button("Add to Research Report", icon="➕", use_container_width=False):
+                if 'report_list' not in st.session_state:
+                    st.session_state['report_list'] = []
+                
+                # Check if already added
+                if row['Topic'] not in [item['Topic'] for item in st.session_state['report_list']]:
+                    st.session_state['report_list'].append({
+                        "Topic": row['Topic'],
+                        "Notes": row['Explanation']
+                    })
+                    st.toast(f"Added {row['Topic']} to report!", icon="✅")
+                else:
+                    st.warning("Topic already in report.")
         with right:
-            with st.expander("🖼️ View Diagram", expanded=True):
-                img = str(row.get("Image", ""))
-                if os.path.exists(img): st.image(img, use_container_width=True)
-                else: st.info("No diagram.")
-        st.markdown('</div>', unsafe_allow_html=True)
+            # --- DIAGRAM SPOILER ---
+            with st.expander("🖼️ View Topic Diagram", expanded=False):
+                img_path = str(row.get("Image", ""))
+                if img_path and os.path.exists(img_path):
+                    st.image(img_path, use_container_width=True, caption=f"Visual: {row.get('Topic')}")
+                else:
+                    st.info("No diagram available.")
 
-# --- TAB 2: 10 POINTS ---
+
+# =========================
+# TAB 2: 10 POINTS (Updated)
+# =========================
 with tabs[1]:
+    st.header("🧠 10 Key Exam Points")
+    
     if 'selected_row' in st.session_state:
-        curr = st.session_state['selected_row']
-        st.header(f"🧠 Key Points: {curr['Topic']}")
-        study_mode = st.toggle("Enable Study Mode (Hide Notes)")
-        pts = curr.get('Ten_Points') or "No points available."
+        current_row = st.session_state['selected_row']
+        st.info(f"Topic: **{current_row.get('Topic', 'Selected Topic')}**")
+        
+        # --- NEW: STUDY MODE TOGGLE ---
+        study_mode = st.toggle("Enable Study Mode (Hide Notes)", value=False)
+        
+        pts = current_row.get('Ten_Points') or current_row.get('10_Points') or "No points available."
+        
         if study_mode:
-            st.warning("🙈 Study Mode Active!")
-            if st.button("👁️ Reveal Notes"): st.write(pts)
+            st.warning("🙈 **Study Mode Active:** Try to recall the key points about this topic before revealing them!")
+            if st.button("👁️ Reveal Notes for 10 Seconds"):
+                st.write(pts)
         else:
-            st.success("📝 Full Notes:")
+            # Standard View
+            st.success("📝 **Full Notes:**")
             st.write(pts)
-        st.download_button("📥 Download Notes", str(pts), f"{curr['Topic']}_Notes.txt")
-    else: st.warning("Select a topic in Reader first.")
+        
+        st.divider()
+        # --- CITATION & DOWNLOAD ---
+        col_cite, col_dl = st.columns(2)
+        with col_cite:
+            if st.button("📋 Generate Citation"):
+                citation = f"Source: Bio-Verify 2026, Topic: {current_row.get('Topic')}, Date: {datetime.date.today()}"
+                st.code(citation, language="text")
+        with col_dl:
+            st.download_button(
+                label="📥 Download Study Notes",
+                data=str(pts),
+                file_name=f"{current_row.get('Topic', 'Bio_Notes')}_Notes.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
+    else:
+        st.warning("⚠️ Please go to the 'Reader' tab and select a topic first!")
 
-# --- TAB 3: DNA LAB ---
+# =========================
+# TAB 3: DNA LAB (Updated)
+# =========================
 with tabs[2]:
     st.header("🧪 DNA Interactive Lab")
-    raw_input = st.text_area("Enter Raw DNA:", "atgc 123 gtatc")
+    st.info("Transform and prepare your genomic sequences for analysis.")
+    
+    # Input Section
+    raw_input = st.text_area("Enter Raw DNA (can include spaces/numbers):", "atgc 123 gtatc", key="lab_input")
+    
+    # Action Buttons in a nice row
     c1, c2, c3 = st.columns(3)
-    cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
-    if c1.button("🧹 Clean"): st.success("Cleaned DNA:"); st.code(cleaned)
-    if c2.button("🧬 Transcribe"): st.warning("mRNA:"); st.code(cleaned.replace("T", "U"))
-    if c3.button("🎲 Mutate"):
-        import random
+    
+    # Logic to handle which button was pressed
+    result_text = ""
+    result_type = None
+    label = ""
+
+    if c1.button("🧹 Clean Sequence", use_container_width=True):
+        result_text = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+        result_type = "success"
+        label = "Cleaned DNA Sequence:"
+
+    if c2.button("🧬 Transcribe", use_container_width=True):
+        cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
+        result_text = cleaned.replace("T", "U")
+        result_type = "warning"
+        label = "mRNA Transcript (T → U):"
+
+    if c3.button("🎲 Random Mutation", use_container_width=True):
+        cleaned = "".join([char for char in raw_input if char.upper() in "ATGC"]).upper()
         if cleaned:
-            l = list(cleaned); idx = random.randint(0, len(l)-1)
-            l[idx] = random.choice("ATGC"); st.error(f"Mutated at {idx}:"); st.code("".join(l))
+            import random
+            list_seq = list(cleaned)
+            idx = random.randint(0, len(list_seq)-1)
+            old, new = list_seq[idx], random.choice([b for b in "ATGC" if b != list_seq[idx]])
+            list_seq[idx] = new
+            result_text = "".join(list_seq)
+            result_type = "error"
+            label = f"Mutation Alert: Position {idx} changed from {old} to {new}"
 
-# --- TAB 4: INTERNAL SEARCH (OCR INCLUDED) ---
+    # SHOW RESULTS HERE (Below the buttons, full width)
+    if result_text:
+        st.divider()
+        if result_type == "success": st.success(label)
+        elif result_type == "warning": st.warning(label)
+        elif result_type == "error": st.error(label)
+        st.code(result_text)
+        st.caption("Copy this sequence for use in the Advanced Molecular Suite.")
+
+    st.divider()
+    
+    # Quick Reference
+    st.subheader("Quick Reference")
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.markdown("- **A** $\\rightarrow$ Adenine\n- **T** $\\rightarrow$ Thymine (DNA)")
+    with col_b:
+        st.markdown("- **G** $\\rightarrow$ Guanine\n- **C** $\\rightarrow$ Cytosine")
+    
+    st.info("💡 **Lab Tip:** This lab is designed for sequence preparation. Use the 'Clean' tool to remove non-genetic characters from your data.")
+# =========================
+# TAB 4: INTERNAL SEARCH (Updated)
+# =========================
 with tabs[3]:
-    st.header("🔍 Smart Search")
-    query = st.text_input("Search term (Text or Diagram OCR):").lower()
+    st.header("🔍 Smart Textbook Search")
+    st.info("Search across text content and diagram labels (via OCR).")
+    
+    query = st.text_input("Enter a term to search (e.g., 'DNA', 'Polymerase')...").lower()
+    
     if query:
+        found = False
         for i, r in knowledge_df.iterrows():
-            img_text = get_text_from_image(str(r.get('Image', '')))
-            if query in str(r['Topic']).lower() or query in str(r['Explanation']).lower() or query in img_text:
-                with st.expander(f"📖 {r['Topic']} (Page {i+1})"):
-                    st.write(r['Explanation'][:200] + "...")
-                    if st.button(f"Jump to Page {i+1}", key=f"jump_{i}"):
-                        st.session_state.page_index = i; st.rerun()
-
-# --- TAB 5: GLOBAL SEARCH ---
+            # Check Text
+            txt_match = query in str(r['Topic']).lower() or query in str(r['Explanation']).lower()
+            
+            # Check Image via OCR
+            img_path = str(r.get('Image', ''))
+            img_text = get_text_from_image(img_path)
+            ocr_match = query in img_text
+            
+            if txt_match or ocr_match:
+                found = True
+                with st.expander(f"📖 {r['Topic']} (Page {i+1})", expanded=True):
+                    col_text, col_img = st.columns([2, 1])
+                    
+                    with col_text:
+                        if txt_match:
+                            st.markdown("✅ **Found in Text**")
+                        if ocr_match:
+                            st.markdown("👁️ **Found in Diagram (OCR)**")
+                        
+                        st.write(r['Explanation'][:300] + "...") # Show preview
+                        if st.button(f"Go to Page {i+1}", key=f"search_btn_{i}"):
+                            st.session_state.page_index = i
+                            st.rerun()
+                            
+                    with col_img:
+                        if img_path and os.path.exists(img_path):
+                            st.image(img_path, caption="Related Diagram", use_container_width=True)
+                        else:
+                            st.caption("No image available")
+                            
+        if not found:
+            st.warning(f"No results found for '{query}'. Try checking the 'Global Bio-Search' tab!")
+# =========================
+# TAB 5: GLOBAL BIO-SEARCH
+# =========================
 with tabs[4]:
     st.header("🌐 Global Bio-Intelligence")
-    user_input = st.text_input("Wikipedia/NCBI Search:")
+    st.caption("Search results are now matched for accuracy (Google-style logic)")
+    
+    st.subheader("📚 Quick Wikipedia Summary")
+    user_input = st.text_input("Search for any topic (e.g., DNA, MITOSIS, CRISPR):")
+    
     if user_input:
-        try:
-            summary = wikipedia.summary(user_input, sentences=3)
-            st.markdown(f"<div class='bio-card'><h3>📚 Wikipedia:</h3>{summary}</div>", unsafe_allow_html=True)
-        except: st.error("Wikipedia search failed.")
-        
-        if st.button("Search NCBI"):
-            res = requests.get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi", 
-                               params={"db": "pubmed", "term": user_input, "retmode": "json"}).json()
-            ids = res.get("esearchresult", {}).get("idlist", [])
-            for rid in ids: st.write(f"✅ Record: https://www.ncbi.nlm.nih.gov/pubmed/{rid}")
+        with st.spinner(f"Searching for '{user_input}'..."):
+            try:
+                search_results = wikipedia.search(user_input, results=5)
+                if not search_results:
+                    st.error("❌ No results found on Wikipedia.")
+                else:
+                    target_title = search_results[0]
+                    page = wikipedia.page(target_title, auto_suggest=False)
+                    summary = wikipedia.summary(target_title, sentences=4, auto_suggest=False)
+                    
+                    # --- NEW RESEARCH CARD UI ---
+                    st.markdown(f"""
+                        <div style="background-color: #f0f2f6; padding: 20px; border-radius: 10px; border-left: 5px solid #1e468a;">
+                            <h3 style="margin-top: 0;">📚 Research Snapshot: {page.title}</h3>
+                            <p style="font-size: 1.1rem; line-height: 1.6;">{summary}</p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Metadata Columns
+                    st.write("") 
+                    m1, m2, m3 = st.columns(3)
+                    with m1:
+                        st.info(f"🔗 **Source:** Wikipedia")
+                    with m2:
+                        # Simple logic to count words as a 'complexity' metric
+                        word_count = len(summary.split())
+                        st.info(f"📊 **Complexity:** {word_count} words")
+                    with m3:
+                        st.info(f"📅 **Last Updated:** Today")
 
-# --- TAB 6: HINDI HELPER ---
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.link_button("📖 Read Full Article", page.url, use_container_width=True)
+                    with col2:
+                        google_url = f"https://www.google.com/search?q={user_input.replace(' ', '+')}+biology+research+gate"
+                        st.link_button("🔬 Search ResearchGate", google_url, use_container_width=True)
+                        
+            except wikipedia.exceptions.DisambiguationError as e:
+                st.warning(f"Too many matches. Did you mean: {', '.join(e.options[:3])}?")
+            except Exception as e:
+                st.error("Could not fetch detailed summary. Try a more specific term.")
+
+    st.divider()
+    st.subheader("🔬 Technical Research (NCBI)")
+    s_type = st.selectbox("Select Database", ["pubmed", "gene", "protein"])
+    s_query = st.text_input(f"Enter {s_type} keyword for technical data:")
+    
+    if st.button("Search NCBI"):
+        if s_query:
+            with st.spinner("Searching NCBI..."):
+                try:
+                    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+                    res = requests.get(url, params={"db": s_type, "term": s_query, "retmode": "json", "retmax": 5}).json()
+                    ids = res.get("esearchresult", {}).get("idlist", [])
+                    if ids:
+                        st.caption("🛡️ Verified Technical Records found:")
+                        for rid in ids:
+                            st.write(f"✅ **Record {rid}:** [View Official NCBI Data](https://www.ncbi.nlm.nih.gov/{s_type}/{rid})")
+                    else:
+                        st.warning("No technical records found.")
+                except Exception as e:
+                    st.error(f"NCBI Connection Error: {e}")
+        else:
+            st.warning("Please enter a keyword.")
+
+# =========================
+# TAB 6: HINDI HELPER
+# =========================
 with tabs[5]:
     st.header("🇮🇳 Hindi Helper")
-    txt = st.text_area("English text to Hindi:")
+    txt = st.text_area("Paste English text to translate to Hindi:")
     if st.button("Translate"):
         if txt.strip():
-            st.info(GoogleTranslator(source="auto", target="hi").translate(txt))
-
-# --- TAB 7: ADVANCED SUITE ---
+            try:
+                translated = GoogleTranslator(source="auto", target="hi").translate(txt)
+                st.info(translated)
+            except Exception as e:
+                st.error("Translation Error.")
+# ==========================================
+# TAB 7: SEQUENCE ANALYZER
+# ==========================================
 with tabs[6]:
     st.header("🧬 Advanced Molecular Suite")
-    raw_seq = st.text_area("DNA Sequence:", "ATGGCCATTGTAATGGGCCGCTGAAAGGGTACCCGATAG").upper().strip()
+    raw_seq = st.text_area("Paste DNA Sequence:", "ATGGCCATTGTAATGGGCCGCTGAAAGGGTACCCGATAG", key="dna_input_area").upper().strip()
+    
     if raw_seq:
+        # ... (keep your length and GC calculation lines here) ...
+        seq_len = len(raw_seq)
+        gc_count = raw_seq.count('G') + raw_seq.count('C')
+        gc_content = (gc_count / seq_len) * 100 if seq_len > 0 else 0
+        
+        # 1. Metrics and Chart (Indented inside the IF)
         col1, col2, col3 = st.columns(3)
-        col1.metric("Length", f"{len(raw_seq)} bp")
-        gc = (raw_seq.count('G') + raw_seq.count('C')) / len(raw_seq) * 100
-        col2.metric("GC Content", f"{gc:.1f}%")
+        col1.metric("Length", f"{seq_len} bp")
+        col2.metric("GC Content", f"{gc_content:.1f}%")
         mw = (raw_seq.count('A')*313.2) + (raw_seq.count('T')*304.2) + (raw_seq.count('C')*289.2) + (raw_seq.count('G')*329.2)
         col3.metric("Mol. Weight", f"{mw:,.1f} Da")
-        
-        df = pd.DataFrame({'Nucleotide': ['A', 'T', 'G', 'C'], 'Count': [raw_seq.count(x) for x in 'ATGC']})
-        st.plotly_chart(px.bar(df, x='Nucleotide', y='Count', color='Nucleotide', template="plotly_dark", height=300))
-        
+        df = pd.DataFrame({
+                'Nucleotide': ['A', 'T', 'G', 'C'],
+                'Count': [raw_seq.count('A'), raw_seq.count('T'), raw_seq.count('G'), raw_seq.count('C')]
+            })
+            
+        fig = px.bar(df, x='Nucleotide', y='Count', color='Nucleotide',
+                     color_discrete_map={'A':'#FF4B4B', 'T':'#1C83E1', 'G':'#00C78C', 'C':'#FACA2B'},
+                     height=300)
+        st.plotly_chart(fig, use_container_width=True)
+        # ---------------------
+        # 2. Tools (Indented inside the IF)
         c1, c2 = st.columns(2)
         with c1:
-            with st.expander("🔗 Complement"):
-                st.code("".join([{"A":"T","T":"A","G":"C","C":"G"}.get(b,"N") for b in raw_seq]))
+               with st.expander("🔗 Complementary Strand", expanded=True):
+                    pairs = {"A": "T", "T": "A", "G": "C", "C": "G"}
+                    comp = "".join([pairs.get(b, "N") for b in raw_seq])
+                    st.code(f"3'- {comp} -5'")
+
+
+        
         with c2:
-            with st.expander("🧪 Translation"):
+            with st.expander("🧪 Protein Translation", expanded=True):
+                # FULL CODON MAP
                 codon_map = {'ATA':'I', 'ATC':'I', 'ATT':'I', 'ATG':'M', 'ACA':'T', 'ACC':'T', 'ACG':'T', 'ACT':'T', 'AAC':'N', 'AAT':'N', 'AAA':'K', 'AAG':'K', 'AGC':'S', 'AGT':'S', 'AGA':'R', 'AGG':'R', 'CTA':'L', 'CTC':'L', 'CTG':'L', 'CTT':'L', 'CCA':'P', 'CCC':'P', 'CCG':'P', 'CCT':'P', 'CAC':'H', 'CAT':'H', 'CAA':'Q', 'CAG':'Q', 'CGA':'R', 'CGC':'R', 'CGG':'R', 'CGT':'R', 'GTA':'V', 'GTC':'V', 'GTG':'V', 'GTT':'V', 'GCA':'A', 'GCC':'A', 'GCG':'A', 'GCT':'A', 'GAC':'D', 'GAT':'D', 'GAA':'E', 'GAG':'E', 'GGA':'G', 'GGC':'G', 'GGG':'G', 'GGT':'G', 'TCA':'S', 'TCC':'S', 'TCG':'S', 'TCT':'S', 'TTC':'F', 'TTT':'F', 'TTA':'L', 'TTG':'L', 'TAC':'Y', 'TAT':'Y', 'TAA':'_', 'TAG':'_', 'TGC':'C', 'TGT':'C', 'TGA':'_', 'TGG':'W'}
-                prot = "".join([codon_map.get(raw_seq[i:i+3], '?') for i in range(0, len(raw_seq)-2, 3)])
-                st.write(f"**Protein:** `{prot}`")
+                protein = ""
+                for i in range(0, len(raw_seq)-2, 3):
+                    codon = raw_seq[i:i+3]
+                    protein += codon_map.get(codon, '?')
+                # THIS LINE BELOW puts it INSIDE the box
+                st.write(f"**Protein:** `{protein}`")
+
+        # 3. Insight (Indented inside the IF so it doesn't show in other tabs)
+        if gc_content > 60:
+            st.warning("⚠️ High GC Content: Very stable sequence.")
+        elif gc_content < 40:
+            st.info("ℹ️ Low GC Content: AT-rich region.")
+        else:
+            st.success("✅ Balanced GC Content: Normal distribution.")      
 # =========================
 # SIDEBAR: RESEARCH REPORT
 # =========================
