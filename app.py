@@ -275,9 +275,9 @@ with tabs[0]:
 
     st.info("💡 **Study Tip:** Use the '10 Points' tab to quickly review key exam facts for the currently selected chapter.")
 # =========================
-# TAB 1: READER
+# TAB 1: 📖 READER (Previously tabs[0])
 # =========================
-with tabs[0]:
+with tabs[1]:
     if knowledge_df.empty:
         st.warning("⚠️ Knowledge base is empty. Please check your CSV file.")
     else:
@@ -373,9 +373,9 @@ with tabs[0]:
 
 
 # =========================
-# TAB 2: 10 POINTS (Updated)
+# TAB 2: 🧠 10 POINTS (Previously tabs[1])
 # =========================
-with tabs[1]:
+with tabs[2]:
     st.header("🧠 10 Key Exam Points")
     
     if 'selected_row' in st.session_state:
