@@ -567,43 +567,6 @@ with tabs[4]:
                             
         if not found:
             st.warning(f"No results found for '{query}'. Try checking the 'Global Bio-Search' tab!")
-# ==========================================
-# FLOATING AI SEARCH BAR (GLOBAL)
-# ==========================================
-
-# 1. Create the floating container using your CSS class
-st.markdown('<div class="floating-search">', unsafe_allow_html=True)
-
-# 2. The Search Input (label hidden for a clean look)
-query = st.text_input(
-    "Search", 
-    placeholder="🔍 Ask Bio-Tech AI (e.g. Protein, DNA...)", 
-    label_visibility="collapsed"
-)
-
-st.markdown('</div>', unsafe_allow_html=True)
-
-# 3. Search Logic
-if query:
-    # This searches both the Topic and the Content for the word you typed
-    results = knowledge_df[
-        knowledge_df['Topic'].str.contains(query, case=False, na=False) | 
-        knowledge_df['Content'].str.contains(query, case=False, na=False)
-    ]
-    
-    if not results.empty:
-        # Show a notification
-        st.toast(f"Found {len(results)} matches!")
-        
-        # Display results in a pop-up style expander
-        with st.expander("🔍 Search Results", expanded=True):
-            for i, row in results.iterrows():
-                # If user clicks the button, update the page index and refresh
-                if st.button(f"📖 Go to: {row['Topic']}", key=f"search_{i}"):
-                    st.session_state.page_index = i
-                    st.rerun()
-    else:
-        st.toast("No matches found in the textbook.")
 
 # =========================
 # TAB 5: GLOBAL BIO-SEARCH
