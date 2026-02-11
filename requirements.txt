@@ -14,3 +14,5 @@ wikipedia
 plotly
 datetime
 pytz
+stmol 
+py3Dmol
