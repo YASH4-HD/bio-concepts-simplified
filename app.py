@@ -960,10 +960,10 @@ with st.sidebar:
     else:
         st.info("Your report is empty. Add topics from the 'Reader' tab.")
 # =========================
-# TAB 10: 🔬 NCBS RESEARCH HUB
+# TAB 10: 🔬 NCBS RESEARCH 
 # =========================
 with tabs[9]: 
-    st.markdown("<h2 style='color: #00d4ff;'>🔬 NCBS Research Intelligence Hub</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #00d4ff;'>🔬 NCBS Research Intelligence</h2>", unsafe_allow_html=True)
     
     col_left, col_right = st.columns([2, 1])
     
