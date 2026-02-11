@@ -242,7 +242,7 @@ tabs = st.tabs([
 # TAB 1: 🚀 HOME (LAUNCHPAD)
 # =========================
 with tabs[0]:
-    # Using your existing 'bio-card' class for consistency
+    # Header Section
     st.markdown("""
         <div class="bio-card" style="text-align: center; border: none; background: transparent; box-shadow: none;">
             <h1 style="color: #0369a1; margin-bottom: 10px;">Welcome to Bio-Tech Smart Textbook</h1>
@@ -250,7 +250,7 @@ with tabs[0]:
         </div>
     """, unsafe_allow_html=True)
 
-    # Create a 3-column grid for the Launchpad
+    # --- ROW 1: CORE TOOLS ---
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -261,7 +261,6 @@ with tabs[0]:
                 <p style="font-size: 0.85rem; color: #64748b;">Navigate through core chapters, mechanisms, and detailed genomic analysis.</p>
             </div>
         """, unsafe_allow_html=True)
-        # No logic needed, user just clicks the tab above
 
     with col2:
         st.markdown("""
@@ -281,30 +280,45 @@ with tabs[0]:
             </div>
         """, unsafe_allow_html=True)
 
-    # Secondary Row for Search and Advanced Tools
-    c1, c2 = st.columns(2)
+    # --- ROW 2: ADVANCED & SPECIALIZED ---
+    c1, c2, c3 = st.columns(3) # Changed to 3 columns to fit the new tool
+    
     with c1:
         st.markdown("""
-            <div class="bio-card" style="display: flex; align-items: center; gap: 20px;">
+            <div class="bio-card" style="display: flex; align-items: center; gap: 15px; height: 120px;">
                 <div style="font-size: 2rem;">🔍</div>
                 <div>
                     <h4 style="margin:0; color: #0369a1;">Smart Search</h4>
-                    <p style="margin:0; font-size: 0.85rem; color: #64748b;">Search textbook content and diagram labels via OCR.</p>
+                    <p style="margin:0; font-size: 0.8rem; color: #64748b;">Search textbook content and diagram labels via OCR.</p>
                 </div>
             </div>
         """, unsafe_allow_html=True)
+        
     with c2:
         st.markdown("""
-            <div class="bio-card" style="display: flex; align-items: center; gap: 20px;">
+            <div class="bio-card" style="display: flex; align-items: center; gap: 15px; height: 120px;">
                 <div style="font-size: 2rem;">🧬</div>
                 <div>
                     <h4 style="margin:0; color: #0369a1;">Advanced Suite</h4>
-                    <p style="margin:0; font-size: 0.85rem; color: #64748b;">Calculate GC content, Molecular Weight, and Protein translation.</p>
+                    <p style="margin:0; font-size: 0.8rem; color: #64748b;">Calculate GC content, MW, and Protein translation.</p>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # --- NEW: NCBS LAB MODULE CARD ---
+    with c3:
+        st.markdown("""
+            <div class="bio-card" style="display: flex; align-items: center; gap: 15px; height: 120px; border: 1px solid #00d4ff; background: rgba(0, 212, 255, 0.05);">
+                <div style="font-size: 2rem;">🔬</div>
+                <div>
+                    <h4 style="margin:0; color: #00d4ff;">NCBS Lab Module</h4>
+                    <p style="margin:0; font-size: 0.8rem; color: #64748b;">Structural Mechanobiology engine for C. elegans research.</p>
                 </div>
             </div>
         """, unsafe_allow_html=True)
 
     st.info("💡 **Study Tip:** Use the '10 Points' tab to quickly review key exam facts for the currently selected chapter.")
+
    
 # =========================
 # TAB 1: 📖 READER (Previously tabs[0])
