@@ -70,18 +70,15 @@ def inject_responsive_design():
         border: 1px solid #bae6fd;
     }
     /* Floating Search Bar at the bottom */
-.floating-search {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    z-index: 1000;
+.floating-search-internal {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
     background: white;
-    padding: 10px 20px;
-    border-radius: 50px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    border: 1px solid #0369a1;
+    padding: 10px;
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* Hide on small phones so it doesn't block content */
