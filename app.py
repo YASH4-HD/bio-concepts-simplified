@@ -507,39 +507,56 @@ with tabs[3]:
     
     st.info("💡 **Lab Tip:** This lab is designed for sequence preparation. Use the 'Clean' tool to remove non-genetic characters from your data.")
 # =========================
-# TAB 4: INTERNAL SEARCH (Updated)
+# TAB 4: INTERNAL SEARCH (Fixed & Enhanced)
 # =========================
 with tabs[4]:
     st.header("🔍 Smart Textbook Search")
     st.info("Search across text content and diagram labels (via OCR).")
     
-    query = st.text_input("Enter a term to search (e.g., 'DNA', 'Polymerase')...").lower()
+    # Search input
+    query = st.text_input("Enter a term to search (e.g., 'DNA', 'Polymerase')...")
     
     if query:
+        query_lower = query.lower()
         found = False
+        
+        # Loop through the dataframe
         for i, r in knowledge_df.iterrows():
-            # Check Text
-            txt_match = query in str(r['Topic']).lower() or query in str(r['Explanation']).lower()
+            # 1. Check Text (using 'Topic' and 'Explanation' columns)
+            # We use .get() to prevent crashes if a column is missing
+            topic_val = str(r.get('Topic', '')).lower()
+            expl_val = str(r.get('Explanation', '')).lower()
             
-            # Check Image via OCR
+            txt_match = query_lower in topic_val or query_lower in expl_val
+            
+            # 2. Check Image via OCR
             img_path = str(r.get('Image', ''))
-            img_text = get_text_from_image(img_path)
-            ocr_match = query in img_text
+            img_text = ""
+            if img_path and img_path != 'nan':
+                img_text = get_text_from_image(img_path).lower()
             
+            ocr_match = query_lower in img_text
+            
+            # If we find a match in either Text or OCR
             if txt_match or ocr_match:
                 found = True
-                with st.expander(f"📖 {r['Topic']} (Page {i+1})", expanded=True):
+                with st.expander(f"📖 {r.get('Topic', 'Untitled')} (Page {i+1})", expanded=True):
                     col_text, col_img = st.columns([2, 1])
                     
                     with col_text:
                         if txt_match:
-                            st.markdown("✅ **Found in Text**")
+                            st.markdown("🎯 **Found in Text**")
                         if ocr_match:
                             st.markdown("👁️ **Found in Diagram (OCR)**")
                         
-                        st.write(r['Explanation'][:300] + "...") # Show preview
+                        # Show a preview of the explanation
+                        preview_text = str(r.get('Explanation', 'No content available'))
+                        st.write(preview_text[:300] + "...") 
+                        
+                        # Button to jump to the Reader tab
                         if st.button(f"Go to Page {i+1}", key=f"search_btn_{i}"):
                             st.session_state.page_index = i
+                            # This ensures the app switches focus to the reader's index
                             st.rerun()
                             
                     with col_img:
