@@ -1014,71 +1014,71 @@ with tabs[9]:
         st.text_area("Observations Input", label_visibility="collapsed", 
                      placeholder="Enter findings here...", height=80, key="lab_notes")
 
-        with col_right:
-        # Lab Profile Box
-        st.markdown("""
-        <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 15px; border: 1px solid #00d4ff; margin-bottom: 15px;">
-            <h4 style="margin:0; color: #00d4ff; font-size: 1.1rem;">Lab Profile: NCBS</h4>
-            <p style="font-size: 0.8rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
-        </div>
-        """, unsafe_allow_html=True)
+    with col_right:
+    # Lab Profile Box
+    st.markdown("""
+    <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 15px; border: 1px solid #00d4ff; margin-bottom: 15px;">
+        <h4 style="margin:0; color: #00d4ff; font-size: 1.1rem;">Lab Profile: NCBS</h4>
+        <p style="font-size: 0.8rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # THREE TABS for Analysis
+    analysis_tab1, analysis_tab2, analysis_tab3 = st.tabs(["📊 FRET", "⚡ Ablation", "🔬 Image Tools"])
+    
+    with analysis_tab1:
+        st.write("**Molecular Strain (FRET)**")
+        dist = st.slider("Stretch Distance (nm)", 2.0, 10.0, 5.4, key="fret_slider")
+        d_range = np.linspace(2, 10, 50)
+        e_range = [calculate_fret_efficiency(d) * 100 for d in d_range]
+        current_eff = calculate_fret_efficiency(dist) * 100
         
-        # THREE TABS for Analysis
-        analysis_tab1, analysis_tab2, analysis_tab3 = st.tabs(["📊 FRET", "⚡ Ablation", "🔬 Image Tools"])
+        fig, ax = plt.subplots(figsize=(4, 3))
+        fig.patch.set_alpha(0.0) 
+        ax.set_facecolor('none')
+        label_color = '#333333' 
+        ax.plot(d_range, e_range, color='#00d4ff', linewidth=3)
+        ax.scatter([dist], [current_eff], color='red', s=80, zorder=5)
+        ax.set_ylabel("Efficiency (%)", color=label_color, fontsize=10)
+        ax.set_xlabel("Distance (nm)", color=label_color, fontsize=10)
+        ax.tick_params(colors=label_color, labelsize=8)
+        st.pyplot(fig)
+
+    with analysis_tab2:
+        st.write("**Tissue Tension Analysis**")
+        tension = st.select_slider("Applied Tension", options=[0.2, 0.8, 1.5], key="tension_slider")
+        t_axis = np.linspace(0, 2, 50)
+        recoil_dist = simulate_recoil(t_axis, tension)
+        st.line_chart(pd.DataFrame({"Recoil (μm)": recoil_dist}, index=t_axis), height=150)
+        st.metric("Recoil Velocity", f"{tension/0.5} μm/s")
+
+    with analysis_tab3:
+        st.write("**Image Processing Pipeline**")
         
-        with analysis_tab1:
-            st.write("**Molecular Strain (FRET)**")
-            dist = st.slider("Stretch Distance (nm)", 2.0, 10.0, 5.4, key="fret_slider")
-            d_range = np.linspace(2, 10, 50)
-            e_range = [calculate_fret_efficiency(d) * 100 for d in d_range]
-            current_eff = calculate_fret_efficiency(dist) * 100
+        # Simulated Image Processing Steps
+        tool_choice = st.selectbox("Select Tool", ["OpenCV (cv2)", "Scikit-Image (skimage)", "CellProfiler Logic"])
+        
+        if tool_choice == "OpenCV (cv2)":
+            st.info("Using **cv2.Canny()** for edge detection and **cv2.findContours()** to identify cell boundaries.")
+            st.button("Run Edge Detection")
             
-            fig, ax = plt.subplots(figsize=(4, 3))
-            fig.patch.set_alpha(0.0) 
-            ax.set_facecolor('none')
-            label_color = '#333333' 
-            ax.plot(d_range, e_range, color='#00d4ff', linewidth=3)
-            ax.scatter([dist], [current_eff], color='red', s=80, zorder=5)
-            ax.set_ylabel("Efficiency (%)", color=label_color, fontsize=10)
-            ax.set_xlabel("Distance (nm)", color=label_color, fontsize=10)
-            ax.tick_params(colors=label_color, labelsize=8)
-            st.pyplot(fig)
-
-        with analysis_tab2:
-            st.write("**Tissue Tension Analysis**")
-            tension = st.select_slider("Applied Tension", options=[0.2, 0.8, 1.5], key="tension_slider")
-            t_axis = np.linspace(0, 2, 50)
-            recoil_dist = simulate_recoil(t_axis, tension)
-            st.line_chart(pd.DataFrame({"Recoil (μm)": recoil_dist}, index=t_axis), height=150)
-            st.metric("Recoil Velocity", f"{tension/0.5} μm/s")
-
-        with analysis_tab3:
-            st.write("**Image Processing Pipeline**")
+        elif tool_choice == "Scikit-Image (skimage)":
+            st.info("Using **skimage.filters.otsu** for thresholding and **skimage.measure.regionprops** for geometry.")
+            st.button("Calculate Cell Area")
             
-            # Simulated Image Processing Steps
-            tool_choice = st.selectbox("Select Tool", ["OpenCV (cv2)", "Scikit-Image (skimage)", "CellProfiler Logic"])
-            
-            if tool_choice == "OpenCV (cv2)":
-                st.info("Using **cv2.Canny()** for edge detection and **cv2.findContours()** to identify cell boundaries.")
-                st.button("Run Edge Detection")
-                
-            elif tool_choice == "Scikit-Image (skimage)":
-                st.info("Using **skimage.filters.otsu** for thresholding and **skimage.measure.regionprops** for geometry.")
-                st.button("Calculate Cell Area")
-                
-            elif tool_choice == "CellProfiler Logic":
-                st.info("Simulating a pipeline: [IdentifyPrimaryObjects] -> [MeasureObjectIntensity] -> [ExportToSpreadsheet]")
-                st.button("Run Pipeline")
+        elif tool_choice == "CellProfiler Logic":
+            st.info("Simulating a pipeline: [IdentifyPrimaryObjects] -> [MeasureObjectIntensity] -> [ExportToSpreadsheet]")
+            st.button("Run Pipeline")
 
-            # Progress Bar for "Analysis"
-            if st.button("🚀 Analyze Raw TIFF"):
-                progress_bar = st.progress(0)
-                for i in range(101):
-                    import time
-                    time.sleep(0.01)
-                    progress_bar.progress(i)
-                st.success("Analysis Complete!")
-                st.json({"Mean_Intensity": 142.5, "Cell_Count": 12, "Avg_Strain": "8.4 pN"})
+        # Progress Bar for "Analysis"
+        if st.button("🚀 Analyze Raw TIFF"):
+            progress_bar = st.progress(0)
+            for i in range(101):
+                import time
+                time.sleep(0.01)
+                progress_bar.progress(i)
+            st.success("Analysis Complete!")
+            st.json({"Mean_Intensity": 142.5, "Cell_Count": 12, "Avg_Strain": "8.4 pN"})
 
 
     # Bottom Pitch
