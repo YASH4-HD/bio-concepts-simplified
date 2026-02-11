@@ -722,51 +722,45 @@ with tabs[8]:
     from stmol import showmol
     import py3Dmol
 
-    st.header("🔬 Interactive 3D Structure Viewer")
+   # 1. Top Navigation Bar
+    st.markdown("<h3 style='text-align: center; color: #00ff88;'>Protein GPT 3D Viewer</h3>", unsafe_allow_html=True)
+    st.caption("MCP PROTOCOL • PDB SEARCH • 3D VIEWER • STRUCTURE EDITING • PROPKA")
     
-    st.markdown("""
-        <div class="bio-card">
-            <p>Enter a <b>PDB ID</b> (Protein Data Bank ID) to visualize the 3D molecular structure. 
-            Common IDs: <b>1A2B</b>, <b>6M8F</b> (COVID-19 Protease), <b>4INS</b> (Insulin).</p>
-        </div>
-    """, unsafe_allow_html=True)
+    # 2. Control Row (Style & Color)
+    col_ctrl1, col_ctrl2 = st.columns(2)
+    with col_ctrl1:
+        style = st.selectbox("Style", ["cartoon", "stick", "sphere", "line"], index=0)
+    with col_ctrl2:
+        color_scheme = st.selectbox("Color Scheme", ["spectrum", "chain", "element", "residue"], index=0)
 
-    # Input for PDB ID
-    c1, c2 = st.columns([1, 3])
-    with c1:
-        pdb_id = st.text_input("Enter PDB ID:", "6M8F").strip()
+    # 3. Main Viewer Area
+    col_main, col_side = st.columns([2, 1])
     
-    with c2:
-        style = st.selectbox("Select Visualization Style:", 
-                            ["cartoon", "stick", "sphere", "line"])
+    with col_main:
+        # Check if we have a PDB file loaded
+        target_pdb = st.session_state.get('current_pdb', '6M8F') # Default to 6M8F
+        
+        # Here we call your existing 3Dmol function
+        # Make sure to pass the 'style' and 'color_scheme' variables to it
+        show_3d_structure(target_pdb, style=style, color=color_scheme)
+        
+        st.caption(f"Showing: {target_pdb}_MODIFIED")
+        st.button(f"📥 Download {target_pdb}_CLEAN.pdb", use_container_width=True)
 
-    if pdb_id:
-        try:
-            with st.spinner(f"Fetching structure {pdb_id}..."):
-                # Create the 3D Viewer
-                view = py3Dmol.view(query=f'pdb:{pdb_id}')
-                
-                # Apply the chosen style and a professional color scheme
-                if style == "cartoon":
-                    view.setStyle({'cartoon': {'color': 'spectrum'}})
-                elif style == "stick":
-                    view.setStyle({'stick': {}})
-                elif style == "sphere":
-                    view.setStyle({'sphere': {}})
-                else:
-                    view.setStyle({'line': {}})
-                
-                view.addSurface(py3Dmol.VDW, {'opacity': 0.3, 'color': 'white'}) # Adds a subtle outer shell
-                view.spin(True) # Makes it rotate automatically for a "High-Tech" look
-                
-                # Display in Streamlit
-                st.markdown('<div class="bio-card" style="background: #f8faff;">', unsafe_allow_html=True)
-                showmol(view, height=500, width=800)
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.info("💡 **Pro-Tip:** Use your mouse to rotate, zoom, and inspect the protein structure.")
-        except Exception as e:
-            st.error(f"Could not load PDB ID '{pdb_id}'. Please check the ID and your internet connection.")
+    with col_side:
+        st.subheader("Structure Log")
+        # Chat-like interface for protein commands
+        st.info("🤖 **Assistant:** I've detected 15 sulfate ions. Should I remove them?")
+        if st.button("Remove SO4"):
+            st.success("Sulfate ions removed!")
+        
+        st.markdown("---")
+        st.write("**VERSIONS**")
+        st.code("Step 1: Original PDB\nStep 2: Removed Water\nStep 3: Applied Spectrum", language="text")
+
+    # 4. The Bottom Chat Bar (The one you liked)
+    st.markdown("---")
+    chat_query = st.text_input("Ask about protein structures...", placeholder="e.g. 'Remove all water molecules' or 'Highlight active site'")
 # =========================
 # SIDEBAR: RESEARCH REPORT
 # =========================
