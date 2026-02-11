@@ -97,18 +97,20 @@ def inject_responsive_design():
 .stTextInput > div > div > input {
     border: none !important;
     background: transparent !important;
-}
-
+    }
     </style>
+    """, unsafe_allow_html=True)  # This closes the CSS part
 
+    # Now we start the HTML particles part
     st.markdown("""
-<div aria-hidden="true">
-    <div class="particle" style="left:10%; animation-delay:0s;">🧬</div>
-    <div class="particle" style="left:35%; animation-delay:5s;">●</div>
-    <div class="particle" style="left:60%; animation-delay:2s;">○</div>
-    <div class="particle" style="left:85%; animation-delay:8s;">🧬</div>
-</div>
-""", unsafe_allow_html=True)
+    <div aria-hidden="true">
+        <div class="particle" style="left:10%; animation-delay:0s;">🧬</div>
+        <div class="particle" style="left:35%; animation-delay:5s;">●</div>
+        <div class="particle" style="left:60%; animation-delay:2s;">○</div>
+        <div class="particle" style="left:85%; animation-delay:8s;">🧬</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 inject_responsive_design()
 
