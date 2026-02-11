@@ -722,20 +722,34 @@ with tabs[8]:
     from stmol import showmol
     import py3Dmol
 
-    # 1. ADVANCED RENDER ENGINE
+    # --- 1. UPDATED RENDER ENGINE (Added Brightness/Shine) ---
     def render_advanced_protein(pdb_id, style_type, color_type, remove_water=False, show_surface=False, spin=True, dark_mode=True):
         view = py3Dmol.view(query=f'pdb:{pdb_id}')
         bg_color = '#0e1117' if dark_mode else 'white'
         view.setBackgroundColor(bg_color)
-        view.setStyle({style_type: {'color': color_type}})
-        view.addStyle({'outline': {'color': 'black', 'width': 0.1}})
+        
+        # INCREASE BRIGHTNESS: We add a 'specular' shine and set the intensity
+        view.setStyle({style_type: {
+            'color': color_type,
+            'specular': '#ffffff',  # Adds a white "shine" to the atoms
+            'shininess': 100,       # Makes it look like polished glass/plastic
+            'thickness': 0.4        # Makes 'cartoon' and 'stick' more bold
+        }})
+        
+        # Add a subtle outline to make it "pop" from the background
+        view.addStyle({'outline': {'color': 'black', 'width': 0.05}})
+        
         if remove_water:
             view.removeSelection({'resn': 'HOH'})
+        
         if show_surface:
-            view.addSurface(py3Dmol.VDW, {'opacity': 0.4, 'colorscheme': color_type})
+            # Surface opacity lowered for better visibility of the structure inside
+            view.addSurface(py3Dmol.VDW, {'opacity': 0.3, 'colorscheme': color_type})
+        
         view.zoomTo()
         view.spin(spin)
         return showmol(view, height=550, width=800)
+
 
     # 2. HEADER & CONTROLS
     st.markdown("<h2 style='text-align: center; color: #00d4ff;'>🧬 Bio-Nexus Structure Engine</h2>", unsafe_allow_html=True)
