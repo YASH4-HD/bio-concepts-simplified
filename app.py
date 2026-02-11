@@ -959,20 +959,21 @@ with st.sidebar:
     else:
         st.info("Your report is empty. Add topics from the 'Reader' tab.")
 # =========================
-# TAB 9: 🔬 NCBS Research
+# TAB 10: 🔬 NCBS RESEARCH HUB
 # =========================
-with tabs[9]: # This is your 9th tab (index 9)
+with tabs[9]: 
     st.markdown("<h2 style='color: #00d4ff;'>🔬 NCBS Research Intelligence Hub</h2>", unsafe_allow_html=True)
     
     col_left, col_right = st.columns([2, 1])
     
     with col_left:
         st.markdown("""
-        ### 🧬 Targeted Mechanobiology Study: *C. elegans*
-        **Objective:** To investigate the structural integrity of the spectrin cytoskeleton under mechanical strain in muscle cells.
-        """)
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 10px;">
+            <h3 style="color: #00d4ff; margin-top: 0;">🧬 Targeted Mechanobiology Study: <i>C. elegans</i></h3>
+            <p><b>Objective:</b> To investigate the structural integrity of the spectrin cytoskeleton under mechanical strain in muscle cells.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Experimental Checklist
         st.write("#### 📋 Virtual Lab Notebook")
         task1 = st.checkbox("Prepare NGM plates with OP50 bacteria", value=True)
         task2 = st.checkbox("Perform RNAi knockdown of unc-70 (Beta-spectrin)", value=True)
@@ -980,9 +981,8 @@ with tabs[9]: # This is your 9th tab (index 9)
         task4 = st.checkbox("Analyze 3D Protein Strain via Bio-Nexus Engine", value=False)
         
         if task4:
-            st.success("Analysis Complete: High strain detected in the CH-domain of Spectrin.")
+            st.success("✅ Analysis Complete: High strain detected in the CH-domain of Spectrin.")
             
-        # Research Notes Area
         st.text_area("✍️ Researcher Observations", 
                      placeholder="Enter observations about worm motility or fluorescent signal intensity...",
                      height=150)
@@ -992,9 +992,9 @@ with tabs[9]: # This is your 9th tab (index 9)
         st.markdown("""
         <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #00d4ff;">
             <h4 style="margin:0; color: #00d4ff;">Lab Profile: NCBS</h4>
-            <p style="font-size: 0.8rem;"><b>Principal Investigator:</b> Organ Mechanobiology Group</p>
-            <hr>
-            <p style="font-size: 0.8rem;"><b>Priority Genes:</b><br>
+            <p style="font-size: 0.85rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
+            <hr style="border: 0.5px solid #00d4ff; opacity: 0.3;">
+            <p style="font-size: 0.85rem;"><b>Priority Genes:</b><br>
             • unc-70 (Spectrin)<br>
             • myo-3 (Myosin)<br>
             • let-805 (Myotendinous junction)</p>
@@ -1003,21 +1003,23 @@ with tabs[9]: # This is your 9th tab (index 9)
         
         st.divider()
         
-        # A simple data simulation for the lab
         st.write("#### 📊 Strain Analysis")
-        chart_data = {
+        # Creating a sample dataframe for the chart
+        import pandas as pd
+        chart_data = pd.DataFrame({
             'Strain (pN)': [2, 5, 8, 12, 15, 18],
             'Fluorescence (%)': [98, 92, 85, 70, 45, 20]
-        }
-        st.line_chart(chart_data, x='Strain (pN)', y='Fluorescence (%)')
+        })
+        st.line_chart(chart_data.set_index('Strain (pN)'))
         st.caption("FRET-based tension sensor simulation.")
 
-    # Bottom Section: Why me?
+    # Bottom Section: Professional Pitch
     with st.expander("🎯 Message to the Recruiter"):
-        st.write("""
-        This module demonstrates my ability to integrate computational tools with real-world lab workflows. 
-        By combining 3D protein modeling with experimental tracking, I aim to accelerate the 
-        understanding of how mechanical forces shape biological systems.
+        st.info("""
+        **Why this module?**
+        This interface demonstrates my ability to integrate computational modeling with experimental workflows. 
+        By combining 3D protein structural analysis with real-time data tracking, I aim to provide 
+        actionable insights for mechanobiology research at NCBS.
         """)
 
 
