@@ -415,9 +415,9 @@ with tabs[2]:
         st.warning("⚠️ Please go to the 'Reader' tab and select a topic first!")
 
 # =========================
-# TAB 3: DNA LAB (Updated)
+# TAB 3: 🧪 DNA LAB (Previously tabs[2])
 # =========================
-with tabs[2]:
+with tabs[3]:
     st.header("🧪 DNA Interactive Lab")
     st.info("Transform and prepare your genomic sequences for analysis.")
     
@@ -478,7 +478,7 @@ with tabs[2]:
 # =========================
 # TAB 4: INTERNAL SEARCH (Updated)
 # =========================
-with tabs[3]:
+with tabs[4]:
     st.header("🔍 Smart Textbook Search")
     st.info("Search across text content and diagram labels (via OCR).")
     
