@@ -746,117 +746,148 @@ st.markdown("""
 # TAB 8: 🔬 BIO-NEXUS STRUCTURE ENGINE
 # ==========================================
 with tabs[8]:
-    from stmol import showmol
-    import py3Dmol
+    try:
+        from stmol import showmol
+        import py3Dmol
 
-    def render_advanced_protein(pdb_id, style_type, color_type, remove_water=False, show_surface=False, spin=True, dark_mode=True):
-        view = py3Dmol.view(query=f'pdb:{pdb_id}')
-        bg_color = '#0e1117' if dark_mode else 'white'
-        view.setBackgroundColor(bg_color)
-        
-        # BRIGHTNESS & SHINE
-        view.setStyle({style_type: {
-            'color': color_type,
-            'specular': '#ffffff',
-            'shininess': 100,
-            'thickness': 0.4
-        }})
-        
-        if remove_water:
-            view.removeSelection({'resn': 'HOH'})
-        if show_surface:
-            view.addSurface(py3Dmol.VDW, {'opacity': 0.3, 'colorscheme': color_type})
-            
-        view.zoomTo()
-        view.spin(spin)
-        # HEIGHT IS SET HERE (650)
-        return showmol(view, height=650, width=800)
-
-
-
-    # 2. HEADER & CONTROLS
-    st.markdown("<h2 style='text-align: center; color: #00d4ff;'>🧬 Bio-Nexus Structure Engine</h2>", unsafe_allow_html=True)
-    
-    c_in, c_s, c_c, c_v = st.columns([2, 1, 1, 1])
-    with c_in:
-        target_pdb = st.text_input("Target PDB ID", value="1A8M", key="nexus_pdb")
-    with c_s:
-        style_choice = st.selectbox("Render Mode", ["cartoon", "stick", "sphere", "line"], key="nexus_style")
-    with c_c:
-        color_choice = st.selectbox("Color Palette", ["spectrum", "chain", "element", "residue"], key="nexus_color")
-    with c_v:
-        dark_mode = st.toggle("Night Vision", value=True, key="nexus_dark")
-
-    chat_query = st.text_input("💬 Command Terminal", placeholder="Try 'REMOVE WATER'", key="nexus_chat").upper()
-    water_flag = "REMOVE WATER" in chat_query
-    spin_flag = "STOP" not in chat_query
-
-    # 3. MAIN INTERFACE
-    col_main, col_side = st.columns([3, 1])
-    
-    with col_main:
-        if 'show_surf' not in st.session_state: 
-            st.session_state.show_surf = False
-        
-        render_advanced_protein(
-            target_pdb, style_choice, color_choice, 
-            remove_water=water_flag, show_surface=st.session_state.show_surf,
-            spin=spin_flag, dark_mode=dark_mode
-        )
-        
-        st.write("### Quick Actions")
-        b1, b2, b3 = st.columns(3)
-        with b1:
-            if st.button("🧊 Toggle Surface", use_container_width=True, key="nexus_btn1"):
-                st.session_state.show_surf = not st.session_state.show_surf
-                st.rerun()
-        with b2:
-            if st.button("🎯 Highlight Active Site", use_container_width=True, key="nexus_btn2"):
-                st.toast("Scanning Binding Pockets...")
-        with b3:
-            if st.button("🧪 Predict Properties", use_container_width=True, key="nexus_btn3"):
-                st.info("MW: 64.5 kDa | pI: 6.8")
-        with col_side:
-            # 1. DATABASE LOGIC (Keep this at the top)
-            pdb_data = {
-                "1A8M": {"chains": "4", "res": "574", "type": "Hemoglobin", "helix": 72, "sheet": 12},
-                "7DHL": {"chains": "3", "res": "3726", "type": "Spike Protein", "helix": 25, "sheet": 45},
-                "1BNA": {"chains": "2", "res": "24", "type": "DNA Helix", "helix": 0, "sheet": 0}
+        # 1. STYLING & CSS (The "Glow" Engine)
+        st.markdown("""
+        <style>
+            .nexus-status-card {
+                background: rgba(0, 0, 0, 0.6);
+                border: 1px solid #00f2ff;
+                border-radius: 10px;
+                padding: 15px;
+                color: white;
+                box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+                text-align: center;
+                margin-bottom: 15px;
             }
-            stats = pdb_data.get(target_pdb.upper(), {"chains": "1", "res": "Unknown", "type": "Protein", "helix": 50, "sheet": 20})
-    
-            # 2. START THE GLOWING CONTAINER (The <div> starts here)
-            st.markdown("""
-                <div style='background-color: #0e1117; padding: 25px; border-radius: 15px; border: 2px solid #00d4ff; box-shadow: 0px 0px 20px #00d4ff; color: white;'>
-            """, unsafe_allow_html=True)
-    
-            # 3. CONTENT (All of this will now be inside the box)
-            st.subheader("📡 Nexus Intelligence")
+            .nexus-stat-label {
+                font-size: 0.75rem;
+                color: #00f2ff;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            .nexus-stat-value {
+                font-size: 1.4rem;
+                font-weight: bold;
+                font-family: 'Courier New', monospace;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+
+        # 2. CORE FUNCTIONS
+        def render_advanced_protein(pdb_id, style_type, color_type, remove_water=False, show_surface=False, spin=True, dark_mode=True):
+            view = py3Dmol.view(query=f'pdb:{pdb_id}')
+            bg_color = '#0e1117' if dark_mode else 'white'
+            view.setBackgroundColor(bg_color)
+            
+            view.setStyle({style_type: {
+                'color': color_type,
+                'specular': '#ffffff',
+                'shininess': 100,
+                'thickness': 0.4
+            }})
+            
+            if remove_water:
+                view.removeSelection({'resn': 'HOH'})
+            if show_surface:
+                view.addSurface(py3Dmol.VDW, {'opacity': 0.3, 'colorscheme': color_type})
+                
+            view.zoomTo()
+            view.spin(spin)
+            return showmol(view, height=600, width=800)
+
+        # 3. HEADER
+        st.markdown("<h2 style='text-align: center; color: #00d4ff;'>🧬 Bio-Nexus Structure Engine</h2>", unsafe_allow_html=True)
+        
+        c_in, c_s, c_c, c_v = st.columns([2, 1, 1, 1])
+        with c_in:
+            target_pdb = st.text_input("Target PDB ID", value="1A8M", key="nexus_pdb")
+        with c_s:
+            style_choice = st.selectbox("Render Mode", ["cartoon", "stick", "sphere", "line"], key="nexus_style")
+        with c_c:
+            color_choice = st.selectbox("Color Palette", ["spectrum", "chain", "element", "residue"], key="nexus_color")
+        with c_v:
+            dark_mode = st.toggle("Night Vision", value=True, key="nexus_dark")
+
+        chat_query = st.text_input("💬 Command Terminal", placeholder="Try 'REMOVE WATER'", key="nexus_chat").upper()
+        water_flag = "REMOVE WATER" in chat_query
+        spin_flag = "STOP" not in chat_query
+
+        # 4. MAIN INTERFACE
+        col_main, col_side = st.columns([3, 1])
+        
+        with col_main:
+            if 'show_surf' not in st.session_state: 
+                st.session_state.show_surf = False
+            
+            render_advanced_protein(
+                target_pdb, style_choice, color_choice, 
+                remove_water=water_flag, show_surface=st.session_state.show_surf,
+                spin=spin_flag, dark_mode=dark_mode
+            )
+            
+            st.write("### Quick Actions")
+            b1, b2, b3 = st.columns(3)
+            with b1:
+                if st.button("🧊 Toggle Surface", use_container_width=True, key="nexus_btn1"):
+                    st.session_state.show_surf = not st.session_state.show_surf
+                    st.rerun()
+            with b2:
+                if st.button("🎯 Highlight Active Site", use_container_width=True, key="nexus_btn2"):
+                    st.toast("Scanning Binding Pockets...")
+            with b3:
+                if st.button("🧪 Predict Properties", use_container_width=True, key="nexus_btn3"):
+                    st.info("MW: 64.5 kDa | pI: 6.8")
+
+        with col_side:
+            # Data Logic
+            pdb_data = {
+                "1A8M": {"chains": "4", "res": "574", "type": "Hemoglobin", "helix": 0.72, "sheet": 0.12},
+                "7DHL": {"chains": "3", "res": "3726", "type": "Spike Protein", "helix": 0.25, "sheet": 0.45},
+                "1BNA": {"chains": "2", "res": "24", "type": "DNA Helix", "helix": 0.0, "sheet": 0.0}
+            }
+            stats = pdb_data.get(target_pdb.upper(), {"chains": "1", "res": "Unknown", "type": "Protein", "helix": 0.5, "sheet": 0.2})
+
+            # The Status Card
+            st.markdown(f'''
+                <div class="nexus-status-card">
+                    <div class="nexus-stat-label">Core Status</div>
+                    <div class="nexus-stat-value">SYSTEM ACTIVE</div>
+                </div>
+            ''', unsafe_allow_html=True)
+
+            st.markdown("### 📡 Intelligence")
             st.caption(f"Classification: {stats['type']}")
             
             m1, m2 = st.columns(2)
-            with m1:
-                st.metric("Chains", stats['chains'])
-            with m2:
-                st.metric("Residues", stats['res'])
-                
-            st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
-            st.write("**Secondary Structure**")
-            st.progress(stats['helix'] / 100, text=f"Alpha Helix: {stats['helix']}%")
-            st.progress(stats['sheet'] / 100, text=f"Beta Sheets: {stats['sheet']}%")
+            m1.metric("Chains", stats['chains'])
+            m2.metric("Residues", stats['res'])
             
-            st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
-            if water_flag: st.warning("⚠️ H2O Filter: ACTIVE")
-            else: st.info("💧 Solvent: VISIBLE")
+            st.divider()
             
-            # 4. CLOSE THE GLOWING CONTAINER (The </div> MUST be here)
-            st.markdown("</div>", unsafe_allow_html=True)
-    
-            # 5. SEQUENCE MAP (Keep this outside the box)
+            st.markdown("### Secondary Structure")
+            st.progress(stats['helix'], text=f"Alpha Helix: {int(stats['helix']*100)}%")
+            st.progress(stats['sheet'], text=f"Beta Sheets: {int(stats['sheet']*100)}%")
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            if water_flag: 
+                st.warning("⚠️ H2O Filter: ACTIVE")
+            else: 
+                st.info("💧 Solvent: VISIBLE")
+            
             with st.expander("🧬 Sequence Map"):
                 sequences = {"1BNA": "CGCGAATTCGCG", "1A8M": "VLSPADKT...", "7DHL": "MFVFL..."}
                 current_seq = sequences.get(target_pdb.upper(), "SEQUENCE DATA NOT IN CACHE")
                 st.code(current_seq, wrap_lines=True)
+
+    except Exception as e:
+        st.error("🚀 **Nexus Engine: Hot-Reloading...**")
+        st.info("The system is catching up with your code changes. Please wait for the auto-refresh.")
+        with st.expander("Debug Details"):
+            st.code(e)
 
     # 4. Footer info
     st.caption("Bio-Nexus Engine v2.4 | Powered by py3Dmol & OpenPDB")
