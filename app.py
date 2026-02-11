@@ -722,8 +722,7 @@ with tabs[8]:
     from stmol import showmol
     import py3Dmol
 
-    # --- 1. UPDATED RENDER ENGINE (Added Brightness/Shine) ---
-        def render_advanced_protein(pdb_id, style_type, color_type, remove_water=False, show_surface=False, spin=True, dark_mode=True):
+    def render_advanced_protein(pdb_id, style_type, color_type, remove_water=False, show_surface=False, spin=True, dark_mode=True):
         view = py3Dmol.view(query=f'pdb:{pdb_id}')
         bg_color = '#0e1117' if dark_mode else 'white'
         view.setBackgroundColor(bg_color)
