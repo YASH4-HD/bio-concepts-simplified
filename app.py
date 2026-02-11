@@ -959,6 +959,69 @@ with st.sidebar:
     else:
         st.info("Your report is empty. Add topics from the 'Reader' tab.")
 # =========================
+# TAB 9: 🔬 NCBS Research
+# =========================
+with tabs[8]: # This is your 9th tab (index 8)
+    st.markdown("<h2 style='color: #00d4ff;'>🔬 NCBS Research Intelligence Hub</h2>", unsafe_allow_html=True)
+    
+    col_left, col_right = st.columns([2, 1])
+    
+    with col_left:
+        st.markdown("""
+        ### 🧬 Targeted Mechanobiology Study: *C. elegans*
+        **Objective:** To investigate the structural integrity of the spectrin cytoskeleton under mechanical strain in muscle cells.
+        """)
+        
+        # Experimental Checklist
+        st.write("#### 📋 Virtual Lab Notebook")
+        task1 = st.checkbox("Prepare NGM plates with OP50 bacteria", value=True)
+        task2 = st.checkbox("Perform RNAi knockdown of unc-70 (Beta-spectrin)", value=True)
+        task3 = st.checkbox("Mount worms for High-Res Confocal Imaging", value=False)
+        task4 = st.checkbox("Analyze 3D Protein Strain via Bio-Nexus Engine", value=False)
+        
+        if task4:
+            st.success("Analysis Complete: High strain detected in the CH-domain of Spectrin.")
+            
+        # Research Notes Area
+        st.text_area("✍️ Researcher Observations", 
+                     placeholder="Enter observations about worm motility or fluorescent signal intensity...",
+                     height=150)
+
+    with col_right:
+        # Lab Specific Metadata
+        st.markdown("""
+        <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #00d4ff;">
+            <h4 style="margin:0; color: #00d4ff;">Lab Profile: NCBS</h4>
+            <p style="font-size: 0.8rem;"><b>Principal Investigator:</b> Organ Mechanobiology Group</p>
+            <hr>
+            <p style="font-size: 0.8rem;"><b>Priority Genes:</b><br>
+            • unc-70 (Spectrin)<br>
+            • myo-3 (Myosin)<br>
+            • let-805 (Myotendinous junction)</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.divider()
+        
+        # A simple data simulation for the lab
+        st.write("#### 📊 Strain Analysis")
+        chart_data = {
+            'Strain (pN)': [2, 5, 8, 12, 15, 18],
+            'Fluorescence (%)': [98, 92, 85, 70, 45, 20]
+        }
+        st.line_chart(chart_data, x='Strain (pN)', y='Fluorescence (%)')
+        st.caption("FRET-based tension sensor simulation.")
+
+    # Bottom Section: Why me?
+    with st.expander("🎯 Message to the Recruiter"):
+        st.write("""
+        This module demonstrates my ability to integrate computational tools with real-world lab workflows. 
+        By combining 3D protein modeling with experimental tracking, I aim to accelerate the 
+        understanding of how mechanical forces shape biological systems.
+        """)
+
+
+# =========================
 # SIDEBAR: RESEARCH TIP
 # =========================
 with st.sidebar:
