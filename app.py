@@ -963,100 +963,48 @@ with st.sidebar:
 # TAB 10: 🔬 NCBS RESEARCH 
 # =========================
 with tabs[9]: 
-    st.markdown("<h2 style='color: #00d4ff;'>🔬 NCBS Research Intelligence</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #000000;'>🔬 NCBS Research Intelligence</h2>", unsafe_allow_html=True)
     
-    col_left, col_right = st.columns([2, 1])
+    # Create two columns
+    col_left, col_right = st.columns([1.5, 1]) # Adjusted ratio to balance the big image
     
     with col_left:
-        # Main Lab Image (Microscopy)
+        # 1. FIXED IMAGE SIZE: Using width=600 instead of container_width to prevent it being "too big"
         st.image("https://www.leica-microsystems.com/fileadmin/_processed_/5/c/csm_Roundworm_C_elegans_M205_FA_Rottermann_contrast_4d9ae96fc1.jpg", 
                  caption="High-Resolution DIC Imaging: C. elegans (Scale: 50μm)",
-                 use_container_width=True)
+                 width=600) 
 
         st.markdown("""
-        <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 10px; border-left: 5px solid #00d4ff;">
-            <h3 style="color: #00d4ff; margin-top: 0;">🧬 Targeted Mechanobiology Study</h3>
-            <p><b>Focus:</b> Structural integrity of the spectrin cytoskeleton under mechanical strain in <i>C. elegans</i> muscle cells.</p>
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 10px; border-left: 5px solid #00d4ff; margin-top: 10px;">
+            <h3 style="color: #000000; margin-top: 0; font-size: 1.2rem;">🧬 Targeted Mechanobiology Study</h3>
+            <p style="font-size: 0.9rem;"><b>Focus:</b> Structural integrity of the spectrin cytoskeleton under mechanical strain in <i>C. elegans</i> muscle cells.</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.write("#### 📋 Virtual Lab Notebook")
-        col_check1, col_check2 = st.columns(2)
-        with col_check1:
-            task1 = st.checkbox("Prepare NGM plates", value=True)
-            task2 = st.checkbox("RNAi knockdown: unc-70", value=True)
-        with col_check2:
-            task3 = st.checkbox("Confocal Imaging", value=False)
-            task4 = st.checkbox("3D Strain Analysis", value=False)
-        
-        if task4:
-            st.success("✅ Analysis Complete: High strain detected in Spectrin CH-domain.")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.checkbox("Prepare NGM plates", value=True, key="ncbs_check1")
+            st.checkbox("RNAi knockdown: unc-70", value=True, key="ncbs_check2")
+        with c2:
+            st.checkbox("Confocal Imaging", value=False, key="ncbs_check3")
+            st.checkbox("3D Strain Analysis", value=False, key="ncbs_check4")
             
-        st.text_area("✍️ Researcher Observations", 
-                     placeholder="Enter observations about worm motility or fluorescent signal intensity...",
-                     height=100)
+        st.text_area("✍️ Researcher Observations", height=80, key="ncbs_notes")
 
     with col_right:
-        # PNG Clip Art for the "Model Profile"
-        st.image("https://upload.wikimedia.org/wikipedia/commons/e/eb/Caenorhabditis_elegans_%28C._elegans%29_clip_art.png", 
-                 caption="Model Organism: C. elegans",
-                 width=150)
-
-        # Lab Specific Metadata
+        # 2. LAB PROFILE BOX (Moved to top of right column)
         st.markdown("""
         <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #00d4ff;">
             <h4 style="margin:0; color: #00d4ff;">Lab Profile: NCBS</h4>
-            <p style="font-size: 0.85rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
+            <p style="font-size: 0.8rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
             <hr style="border: 0.5px solid #00d4ff; opacity: 0.3;">
-            <p style="font-size: 0.85rem;"><b>Priority Genes:</b><br>
-            • unc-70 (Spectrin)<br>
-            • myo-3 (Myosin)<br>
-            • let-805 (Myotendinous junction)</p>
+            <p style="font-size: 0.8rem;"><b>Priority Genes:</b> unc-70, myo-3, let-805</p>
         </div>
         """, unsafe_allow_html=True)
         
-        st.divider()
-        
         st.write("#### 📊 Strain Analysis")
-        import pandas as pd
-        chart_data = pd.DataFrame({
-            'Strain (pN)': [2, 5, 8, 12, 15, 18],
-            'Fluorescence (%)': [98, 92, 85, 70, 45, 20]
-        })
-        st.line_chart(chart_data.set_index('Strain (pN)'))
-
-    # Bottom Section: Professional Pitch
-    with st.expander("🎯 Message to the Recruiter"):
-        st.info("""
-        This interface demonstrates my ability to integrate computational modeling with experimental workflows. 
-        By combining 3D protein structural analysis with real-time data tracking, I aim to provide 
-        actionable insights for mechanobiology research at NCBS.
-        """)
-        if task4:
-            st.success("✅ Analysis Complete: High strain detected in the CH-domain of Spectrin.")
-            
-        st.text_area("✍️ Researcher Observations", 
-                     placeholder="Enter observations about worm motility or fluorescent signal intensity...",
-                     height=150)
-
-    with col_right:
-        # Lab Specific Metadata
-        st.markdown("""
-        <div style="background: rgba(0, 212, 255, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #00d4ff;">
-            <h4 style="margin:0; color: #00d4ff;">Lab Profile: NCBS</h4>
-            <p style="font-size: 0.85rem; margin: 5px 0;"><b>PI:</b> Organ Mechanobiology Group</p>
-            <hr style="border: 0.5px solid #00d4ff; opacity: 0.3;">
-            <p style="font-size: 0.85rem;"><b>Priority Genes:</b><br>
-            • unc-70 (Spectrin)<br>
-            • myo-3 (Myosin)<br>
-            • let-805 (Myotendinous junction)</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.divider()
-        
-        st.write("#### 📊 Strain Analysis")
-        # Creating a sample dataframe for the chart
+        # 3. CONSOLIDATED CHART (Only one chart here)
         import pandas as pd
         chart_data = pd.DataFrame({
             'Strain (pN)': [2, 5, 8, 12, 15, 18],
@@ -1065,15 +1013,9 @@ with tabs[9]:
         st.line_chart(chart_data.set_index('Strain (pN)'))
         st.caption("FRET-based tension sensor simulation.")
 
-    # Bottom Section: Professional Pitch
+    # 4. SINGLE MESSAGE EXPANDER (Moved outside columns to bottom)
     with st.expander("🎯 Message to the Recruiter"):
-        st.info("""
-        **Why this module?**
-        This interface demonstrates my ability to integrate computational modeling with experimental workflows. 
-        By combining 3D protein structural analysis with real-time data tracking, I aim to provide 
-        actionable insights for mechanobiology research at NCBS.
-        """)
-
+        st.info("This interface demonstrates my ability to integrate computational modeling with experimental workflows for NCBS research.")
 
 # =========================
 # SIDEBAR: RESEARCH TIP
