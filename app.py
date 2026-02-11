@@ -807,6 +807,7 @@ with tabs[8]:
             if st.button("🧪 Predict Properties", use_container_width=True, key="btn_predict"):
                 st.info("MW: 64.5 kDa | pI: 6.8 (Estimated)")
         with col_side:
+        # Every line below this MUST be indented by 4 spaces
         st.markdown("<div style='background-color: #1e2130; padding: 15px; border-radius: 10px; border: 1px solid #00d4ff;'>", unsafe_allow_html=True)
         st.subheader("📡 Nexus Intelligence")
         
@@ -819,18 +820,16 @@ with tabs[8]:
             
         st.markdown("---")
         
-        # 2. Structural Composition (Visual Bars)
+        # 2. Structural Composition
         st.write("**Secondary Structure**")
         st.caption("Alpha Helix")
-        st.progress(72, text="72%")
+        st.progress(72)
         st.caption("Beta Sheets")
-        st.progress(12, text="12%")
-        st.caption("Random Coils")
-        st.progress(16, text="16%")
+        st.progress(12)
         
         st.markdown("---")
         
-        # 3. Live Status Feed (The "Cool" factor)
+        # 3. Live Status Feed
         st.write("**Engine Status**")
         if water_flag:
             st.warning("⚠️ H2O Filter: ACTIVE")
@@ -840,11 +839,10 @@ with tabs[8]:
         if st.session_state.show_surf:
             st.success("✨ Surface: RENDERED")
             
-        # 4. Sequence Preview (Unique Feature)
+        # 4. Sequence Preview
         with st.expander("🧬 View Sequence Map"):
             st.code("VLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR", wrap_lines=True)
-            st.caption("Primary Chain A (Human Hemoglobin)")
-
+        
         st.markdown("</div>", unsafe_allow_html=True)
 
     # 4. Footer info
