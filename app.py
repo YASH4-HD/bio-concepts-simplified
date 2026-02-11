@@ -1026,31 +1026,40 @@ with tabs[9]:
         # SUB-TABS for Real Data Analysis
         analysis_tab1, analysis_tab2 = st.tabs(["📊 FRET Analysis", "⚡ Laser Ablation"])
         
-        with analysis_tab1:
-            # REAL PHYSICS: Förster Equation
+                with analysis_tab1:
             st.write("**Molecular Strain (FRET)**")
             dist = st.slider("Stretch Distance (nm)", 2.0, 10.0, 5.4, key="fret_slider")
             
-            # Generate Real Curve
+            # 1. Calculate the data
             d_range = np.linspace(2, 10, 50)
-            e_range = [calculate_fret_efficiency(d) * 100 for d in d_range] # Convert to %
+            e_range = [calculate_fret_efficiency(d) * 100 for d in d_range]
             current_eff = calculate_fret_efficiency(dist) * 100
             
-            # Using Matplotlib for a more "Scientific Paper" look
+            # 2. Setup the plot
             fig, ax = plt.subplots(figsize=(4, 3))
-            fig.patch.set_alpha(0.0)
+            fig.patch.set_alpha(0.0) 
             ax.set_facecolor('none')
-            ax.plot(d_range, e_range, color='#333333', linewidth=2)
-            ax.scatter([dist], [current_eff], color='red', s=50)
+
+            # --- DEFINE THE COLOR HERE (BEFORE USING IT) ---
+            label_color = '#333333' 
+            
+            # 3. Draw the plot
+            ax.plot(d_range, e_range, color='#00d4ff', linewidth=3)
+            ax.scatter([dist], [current_eff], color='red', s=80, zorder=5)
+            
+            # 4. Apply the labels (using the variable we just defined)
             ax.set_ylabel("Efficiency (%)", color=label_color, fontsize=10, fontweight='bold')
             ax.set_xlabel("Distance (nm)", color=label_color, fontsize=10, fontweight='bold')
+            
             ax.tick_params(axis='x', colors=label_color, labelsize=9)
             ax.tick_params(axis='y', colors=label_color, labelsize=9)
-            # Make the border (spines) visible
+            
             for spine in ax.spines.values():
                 spine.set_edgecolor(label_color)
                 spine.set_linewidth(1)
+
             st.pyplot(fig)
+
             st.caption("FRET efficiency drops as Spectrin stretches (1/r⁶)")
 
         with analysis_tab2:
