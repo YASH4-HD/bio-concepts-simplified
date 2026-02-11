@@ -9,13 +9,79 @@ import datetime
 import plotly.express as px
 import datetime
 import pytz
-# =========================
-# PAGE CONFIG
-# =========================
-st.set_page_config(
-    page_title="Bio-Tech Smart Textbook",
-    layout="wide"
-)
+# ==========================================
+# 1. MODERN DESIGN & ANIMATION (EXIFA STYLE)
+# ==========================================
+st.set_page_config(page_title="Bio-Tech Smart Textbook", layout="wide")
+
+def inject_modern_design():
+    st.markdown("""
+    <style>
+    /* Dark Background with subtle gradient */
+    .stApp {
+        background: linear-gradient(180deg, #0e1117 0%, #10141b 100%);
+        color: #ffffff;
+    }
+    
+    /* Floating Bio-Particles Background */
+    .particle {
+      color: rgba(0, 255, 255, 0.15); /* Very subtle cyan */
+      font-size: 22px;
+      position: fixed;
+      top: -10%;
+      z-index: 0;
+      user-select: none;
+      pointer-events: none;
+      animation: fall 12s linear infinite, shake 3s ease-in-out infinite;
+    }
+    @keyframes fall { 0% { top: -10%; } 100% { top: 100%; } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(40px); } }
+    
+    .p1 { left: 10%; animation-delay: 0s; }
+    .p2 { left: 30%; animation-delay: 4s; }
+    .p3 { left: 50%; animation-delay: 2s; }
+    .p4 { left: 70%; animation-delay: 7s; }
+    .p5 { left: 85%; animation-delay: 1s; }
+
+    /* Glassmorphism Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(15px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Modern Bio-Card for Content */
+    .bio-card {
+        background: rgba(255, 255, 255, 0.04);
+        padding: 25px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+    }
+
+    /* Style for the DNA Tags */
+    .bio-tag {
+        background-color: rgba(1, 87, 155, 0.3);
+        color: #81d4fa;
+        padding: 4px 12px;
+        border-radius: 15px;
+        margin-right: 8px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border: 1px solid #01579b;
+    }
+    </style>
+    
+    <div aria-hidden="true">
+      <div class="particle p1">🧬</div>
+      <div class="particle p2">●</div>
+      <div class="particle p3">○</div>
+      <div class="particle p4">🧬</div>
+      <div class="particle p5">●</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+inject_modern_design()
 
 # =========================
 # SIDEBAR: BIO-VERIFY PANEL
