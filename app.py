@@ -714,7 +714,34 @@ with tabs[7]:
         elif gc_content < 40:
             st.info("ℹ️ Low GC Content: AT-rich region.")
         else:
-            st.success("✅ Balanced GC Content: Normal distribution.") 
+            st.success("✅ Balanced GC Content: Normal distribution.")
+# Insert this at the top of your Tab 8 code
+st.markdown("""
+<style>
+    .nexus-status-card {
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #00f2ff;
+        border-radius: 10px;
+        padding: 15px;
+        color: white;
+        box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .nexus-stat-label {
+        font-size: 0.8rem;
+        color: #00f2ff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .nexus-stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        font-family: 'Courier New', monospace;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ==========================================
 # TAB 8: 🔬 BIO-NEXUS STRUCTURE ENGINE
 # ==========================================
