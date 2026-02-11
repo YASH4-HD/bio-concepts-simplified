@@ -208,6 +208,73 @@ tabs = st.tabs([
     "🧬 Advanced Molecular Suite"  # <--- Make sure this 7th one is here!
 ])
 # =========================
+# TAB 1: 🚀 HOME (LAUNCHPAD)
+# =========================
+with tabs[0]:
+    # Using your existing 'bio-card' class for consistency
+    st.markdown("""
+        <div class="bio-card" style="text-align: center; border: none; background: transparent; box-shadow: none;">
+            <h1 style="color: #0369a1; margin-bottom: 10px;">Welcome to Bio-Tech Smart Textbook</h1>
+            <p style="font-size: 1.2rem; color: #64748b;">A foundational reference for computational biotechnology research.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Create a 3-column grid for the Launchpad
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+            <div class="bio-card" style="text-align: center; height: 220px;">
+                <h2 style="margin:0;">📖</h2>
+                <h4 style="color: #0369a1;">Smart Reader</h4>
+                <p style="font-size: 0.85rem; color: #64748b;">Navigate through core chapters, mechanisms, and detailed genomic analysis.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        # No logic needed, user just clicks the tab above
+
+    with col2:
+        st.markdown("""
+            <div class="bio-card" style="text-align: center; height: 220px;">
+                <h2 style="margin:0;">🧪</h2>
+                <h4 style="color: #0369a1;">DNA Lab</h4>
+                <p style="font-size: 0.85rem; color: #64748b;">Clean raw sequences, perform transcription, and simulate random mutations.</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+            <div class="bio-card" style="text-align: center; height: 220px;">
+                <h2 style="margin:0;">🌐</h2>
+                <h4 style="color: #0369a1;">Global Intelligence</h4>
+                <p style="font-size: 0.85rem; color: #64748b;">Direct connection to NCBI PubMed and Wikipedia for real-time research.</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Secondary Row for Search and Advanced Tools
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("""
+            <div class="bio-card" style="display: flex; align-items: center; gap: 20px;">
+                <div style="font-size: 2rem;">🔍</div>
+                <div>
+                    <h4 style="margin:0; color: #0369a1;">Smart Search</h4>
+                    <p style="margin:0; font-size: 0.85rem; color: #64748b;">Search textbook content and diagram labels via OCR.</p>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        st.markdown("""
+            <div class="bio-card" style="display: flex; align-items: center; gap: 20px;">
+                <div style="font-size: 2rem;">🧬</div>
+                <div>
+                    <h4 style="margin:0; color: #0369a1;">Advanced Suite</h4>
+                    <p style="margin:0; font-size: 0.85rem; color: #64748b;">Calculate GC content, Molecular Weight, and Protein translation.</p>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.info("💡 **Study Tip:** Use the '10 Points' tab to quickly review key exam facts for the currently selected chapter.")
+# =========================
 # TAB 1: READER
 # =========================
 with tabs[0]:
