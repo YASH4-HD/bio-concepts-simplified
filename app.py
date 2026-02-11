@@ -237,7 +237,7 @@ tabs = st.tabs([
     "🇮🇳 Hindi Helper",
     "🧬 Advanced Molecular Suite",
     "🔬 3D Viewer",
-    "🔬 NCBS Research Hub"
+    "🔬 NCBS Research"
 ])
 
 # =========================
