@@ -1026,7 +1026,7 @@ with tabs[9]:
         # SUB-TABS for Real Data Analysis
         analysis_tab1, analysis_tab2 = st.tabs(["📊 FRET Analysis", "⚡ Laser Ablation"])
         
-                with analysis_tab1:
+        with analysis_tab1:
             st.write("**Molecular Strain (FRET)**")
             dist = st.slider("Stretch Distance (nm)", 2.0, 10.0, 5.4, key="fret_slider")
             
